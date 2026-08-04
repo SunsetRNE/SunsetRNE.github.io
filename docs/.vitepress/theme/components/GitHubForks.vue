@@ -29,6 +29,8 @@ const badge = (status) => ({
   synced: { cls: "ok", text: "✅ 已同步" },
   conflict: { cls: "warn", text: "⚠️ 冲突跳过" },
   error: { cls: "err", text: "❌ 失败" },
+  orphan: { cls: "muted", text: "🕳️ 上游缺失" },
+  not_fork: { cls: "muted", text: "🏠 自建仓库" },
   pending: { cls: "muted", text: "⏳ 待同步" },
 }[status] || { cls: "muted", text: status });
 
@@ -58,6 +60,8 @@ function fmtTime(iso) {
         <span class="sum-item ok"><b>{{ report.synced }}</b> 已同步</span>
         <span class="sum-item warn"><b>{{ report.conflict }}</b> 冲突</span>
         <span class="sum-item err"><b>{{ report.error }}</b> 失败</span>
+        <span class="sum-item muted"><b>{{ report.not_fork || 0 }}</b> 自建</span>
+        <span class="sum-item muted"><b>{{ report.orphan || 0 }}</b> 上游缺失</span>
         <span class="updated">🕐 报告更新于 {{ fmtTime(report.updated_at) }}</span>
       </div>
 
@@ -151,6 +155,7 @@ function fmtTime(iso) {
 .sum-item.ok b { color: #22a06b; }
 .sum-item.warn b { color: #d97706; }
 .sum-item.err b { color: #dc2626; }
+.sum-item.muted b { color: var(--vp-c-text-2); }
 .updated {
   margin-left: auto;
   font-size: 12.5px;

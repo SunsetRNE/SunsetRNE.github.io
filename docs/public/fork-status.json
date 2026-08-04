@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-08-04T14:15:05Z",
+  "updated_at": "2026-08-04T14:17:52Z",
   "total": 54,
   "synced": 0,
   "conflict": 0,
-  "error": 9,
+  "error": 0,
   "forks": [
     {
       "name": "AndroidCS-Native",
@@ -104,8 +104,8 @@
     {
       "name": "auto-green",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-08-04T03:48:17Z",
       "upstream_pushed_at": ""
     },
@@ -200,8 +200,8 @@
     {
       "name": "InstallerX_Zsunset",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-06-01T17:50:02Z",
       "upstream_pushed_at": ""
     },
@@ -320,8 +320,8 @@
     {
       "name": "oppo_oplus_realme",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-08-04T13:49:02Z",
       "upstream_pushed_at": ""
     },
@@ -392,50 +392,52 @@
     {
       "name": "Sundown",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-08-03T17:02:00Z",
       "upstream_pushed_at": ""
     },
     {
       "name": "SunsetGtiHub",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-06-30T06:10:48Z",
       "upstream_pushed_at": ""
     },
     {
       "name": "SunsetRNE.github.io",
       "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "status": "not_fork",
+      "note": "自建仓库，无需同步",
       "fork_pushed_at": "2026-08-04T14:07:50Z",
       "upstream_pushed_at": ""
     },
     {
       "name": "susfs4oki",
-      "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "upstream": "cctv18/susfs4oki",
+      "status": "pending",
+      "note": "等待首次自动同步",
       "fork_pushed_at": "2026-07-22T10:12:15Z",
       "upstream_pushed_at": ""
     },
     {
       "name": "Tricky-Addon-Update-Target-List",
-      "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "upstream": "KOWX712/Tricky-Addon-Update-Target-List",
+      "status": "pending",
+      "note": "等待首次自动同步",
       "fork_pushed_at": "2026-03-08T01:15:11Z",
       "upstream_pushed_at": ""
     },
     {
       "name": "Wild_KSU",
-      "upstream": null,
-      "status": "error",
-      "note": "无法确定上游仓库",
+      "upstream": "WildKernels/Wild_KSU",
+      "status": "pending",
+      "note": "等待首次自动同步",
       "fork_pushed_at": "2025-10-16T14:36:01Z",
       "upstream_pushed_at": ""
     }
-  ]
+  ],
+  "not_fork": 6,
+  "orphan": 0
 }

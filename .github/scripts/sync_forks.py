@@ -52,35 +52,47 @@ def run(cmd, cwd=None, check=False):
 
 def main():
     print(f"🔍 开始同步 {USERNAME} 的 fork 仓库...")
-    forks = api(f"/users/{USERNAME}/repos?type=fork&per_page=100")
-    print(f"   共发现 {len(forks)} 个 fork")
+    # 拉全部仓库再过滤 fork（type=fork 参数不可靠，可能混入自建仓库）
+    repos = api(f"/users/{USERNAME}/repos?per_page=100")
+    forks = [r for r in repos if r.get("fork")]
+    print(f"   共发现 {len(forks)} 个 fork（总仓库 {len(repos)}）")
 
     results = []
 
     for idx, fork in enumerate(forks, 1):
         name = fork["name"]
-        # 列表接口不返回 source/parent，需单独查询仓库详情
-        try:
-            detail = api(f"/repos/{USERNAME}/{name}")
-            upstream = (detail.get("source") or {}).get("full_name") or (
-                detail.get("parent") or {}
-            ).get("full_name")
-        except Exception:
-            upstream = None
         item = {
             "name": name,
-            "upstream": upstream,
+            "upstream": None,
             "status": "pending",
             "note": "",
             "fork_pushed_at": fork.get("pushed_at", ""),
             "upstream_pushed_at": "",
         }
 
-        if not upstream:
+        # 查询仓库详情获取 source/parent（列表接口不返回该字段）
+        try:
+            detail = api(f"/repos/{USERNAME}/{name}")
+        except Exception as e:
             item["status"] = "error"
-            item["note"] = "无法确定上游仓库"
+            item["note"] = f"API 查询失败: {str(e)[:120]}"
             results.append(item)
-            print(f"   [{idx}/{len(forks)}] {name}: 无上游信息，跳过")
+            print(f"   [{idx}/{len(forks)}] {name}: ❌ API 查询失败")
+            continue
+
+        if not detail.get("fork"):
+            item["status"] = "not_fork"
+            item["note"] = "自建仓库，无需同步"
+            results.append(item)
+            print(f"   [{idx}/{len(forks)}] {name}: 🏠 自建仓库，跳过")
+            continue
+
+        upstream = (detail.get("source") or detail.get("parent") or {}).get("full_name")
+        if not upstream:
+            item["status"] = "orphan"
+            item["note"] = "fork 的上游仓库已不存在或无法访问"
+            results.append(item)
+            print(f"   [{idx}/{len(forks)}] {name}: 🕳️ 上游不存在，跳过")
             continue
 
         # 获取上游默认分支
@@ -165,6 +177,8 @@ def main():
         "synced": sum(1 for r in results if r["status"] == "synced"),
         "conflict": sum(1 for r in results if r["status"] == "conflict"),
         "error": sum(1 for r in results if r["status"] == "error"),
+        "orphan": sum(1 for r in results if r["status"] == "orphan"),
+        "not_fork": sum(1 for r in results if r["status"] == "not_fork"),
         "forks": results,
     }
     report_dir = os.path.join(WORKSPACE, "docs", "public")
@@ -173,7 +187,8 @@ def main():
         json.dump(report, f, ensure_ascii=False, indent=2)
 
     print(f"\n📊 报告: 共 {report['total']} | ✅ 同步 {report['synced']} | "
-          f"⚠️ 冲突 {report['conflict']} | ❌ 失败 {report['error']}")
+          f"⚠️ 冲突 {report['conflict']} | ❌ 失败 {report['error']} | "
+          f"🏠 自建 {report['not_fork']} | 🕳️ 上游缺失 {report['orphan']}")
     print("📄 已写入 docs/public/fork-status.json")
 
 
