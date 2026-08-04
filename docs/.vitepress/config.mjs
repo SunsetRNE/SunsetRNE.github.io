@@ -2,21 +2,16 @@ import { defineConfig } from "vitepress";
 import mdAutoSpacing from "markdown-it-autospace";
 
 // ============================================================
-// ⚙️ 个人站总配置
-// 👉 只需要改这几处：
-//   1. title / description：你的名字和一句话介绍
-//   2. sitemap.hostname：换成 https://你的用户名.github.io
-//   3. head 里的 SEO 信息（og: / twitter: 标签）
-//   4. themeConfig 里的社交链接（GitHub / Telegram / X 等）
+// ⚙️ SunsetRNE 个人工作站配置
 // ============================================================
 
-const USERNAME = "SunsetRNE"; // ← 改成你的 GitHub 用户名
+const USERNAME = "SunsetRNE";
 const SITE = `https://${USERNAME}.github.io`;
 
 export default defineConfig({
   lang: "zh-CN",
-  title: "你的名字", // ← 站点标题（浏览器标签页 / 搜索结果显示）
-  description: "一句话介绍你自己，例如：热爱开源的 Android 开发者", // ← 站点描述
+  title: "SunsetRNE",
+  description: "Android 内核构建 · 开源折腾者——骁龙内核自动构建器与各种小项目",
 
   cleanUrls: true, // 生成 /about 而不是 /about.html
   lastUpdated: true, // 页面底部显示最后更新时间
@@ -56,18 +51,18 @@ export default defineConfig({
 
     // ---------- SEO 元信息（分享链接时显示漂亮卡片） ----------
     ["meta", { name: "robots", content: "index, follow" }],
-    ["meta", { name: "author", content: "你的名字" }],
-    ["meta", { name: "keywords", content: "你的名字, GitHub, 个人主页, 开发者" }],
+    ["meta", { name: "author", content: "SunsetRNE" }],
+    ["meta", { name: "keywords", content: "SunsetRNE, Android, 内核构建, GitHub, 个人主页, 开发者" }],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:site_name", content: "你的名字" }],
-    ["meta", { property: "og:title", content: "你的名字 - 个人主页" }],
-    ["meta", { property: "og:description", content: "一句话介绍你自己" }],
+    ["meta", { property: "og:site_name", content: "SunsetRNE" }],
+    ["meta", { property: "og:title", content: "SunsetRNE - 个人工作站" }],
+    ["meta", { property: "og:description", content: "Android 内核构建 · 开源折腾者——骁龙内核自动构建器与各种小项目" }],
     ["meta", { property: "og:url", content: SITE }],
-    ["meta", { property: "og:image", content: `${SITE}/avatar.svg` }],
+    ["meta", { property: "og:image", content: `${SITE}/avatar.png` }],
     ["meta", { name: "twitter:card", content: "summary" }],
-    ["meta", { name: "twitter:title", content: "你的名字 - 个人主页" }],
-    ["meta", { name: "twitter:description", content: "一句话介绍你自己" }],
-    ["meta", { name: "twitter:image", content: `${SITE}/avatar.svg` }],
+    ["meta", { name: "twitter:title", content: "SunsetRNE - 个人工作站" }],
+    ["meta", { name: "twitter:description", content: "Android 内核构建 · 开源折腾者——骁龙内核自动构建器与各种小项目" }],
+    ["meta", { name: "twitter:image", content: `${SITE}/avatar.png` }],
   ],
 
   themeConfig: {
@@ -91,7 +86,7 @@ export default defineConfig({
     // 页脚
     footer: {
       message: "用 ❤️ 和 VitePress 构建",
-      copyright: "Copyright © 2025 你的名字",
+      copyright: "Copyright © 2025 SunsetRNE",
     },
 
     // 文档页右侧目录层级
