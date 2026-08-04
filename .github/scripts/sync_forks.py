@@ -19,7 +19,10 @@ Fork 自动同步脚本（纯 API 版 · 结构优化）
 import concurrent.futures as cf
 import json
 import os
+import shutil
+import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -32,6 +35,9 @@ SKIP_REPOS = [x.strip() for x in os.environ.get("SKIP_REPOS", "").split(",") if 
 PARALLEL = int(os.environ.get("PARALLEL", "8"))
 API = "https://api.github.com"
 WORKSPACE = os.getcwd()
+TMP_DIR = os.path.join(WORKSPACE, "_fork_tmp")
+MIN_DISK_MB = 1024
+CLONE_SEM = threading.Semaphore(2)  # fallback clone 最多 2 路并行，防磁盘爆
 
 if not TOKEN:
     print("❌ 缺少 SYNC_TOKEN 环境变量，无法跨仓库同步")
@@ -76,6 +82,99 @@ def api(method, path, body=None, timeout=30):
     return 0, {}
 
 
+def check_disk():
+    """磁盘空间不足时等待"""
+    while True:
+        free_mb = shutil.disk_usage(WORKSPACE).free // (1024 * 1024)
+        if free_mb > MIN_DISK_MB:
+            return
+        print(f"   ⚠️ 磁盘剩余 {free_mb}MB，等待释放...")
+        time.sleep(20)
+
+
+def run(cmd, cwd=None, timeout=600):
+    """执行命令，返回 (returncode, stdout)"""
+    p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+    return p.returncode, (p.stdout + p.stderr).strip()
+
+
+def fallback_sync(name, upstream, branch):
+    """API 同步失败时的 git clone 兜底方案（2 路并行 + 磁盘保护）
+
+    流程：完整单分支 clone（⚠️ 不用 shallow/filter——git 2.x 的 shallow push
+          有 thin-pack 缺对象 bug，完整 clone 保证对象完整、push 可靠）
+          → fetch 上游默认分支 → 计算落后提交数
+          → merge；真无共同祖先（上游重写历史）才 --allow-unrelated-histories
+          → push。真正冲突才标 conflict。
+    """
+    repo_dir = os.path.join(TMP_DIR, name)
+    with CLONE_SEM:
+        try:
+            check_disk()
+            clone_url = f"https://x-access-token:{TOKEN}@github.com/{USERNAME}/{name}.git"
+            rc, out = run(
+                ["git", "clone", "--single-branch", clone_url, repo_dir],
+                timeout=1800,
+            )
+            if rc != 0:
+                return "error", f"fallback clone 失败: {out[:100]}"
+
+            # merge 提交需要身份配置（新 clone 的仓库没有）
+            run(["git", "config", "user.name", USERNAME], cwd=repo_dir)
+            run(["git", "config", "user.email",
+                 f"{USERNAME}@users.noreply.github.com"], cwd=repo_dir)
+
+            run(["git", "remote", "add", "upstream",
+                 f"https://github.com/{upstream}.git"], cwd=repo_dir)
+            rc, out = run(
+                ["git", "fetch", "upstream", branch],
+                cwd=repo_dir, timeout=1800,
+            )
+            if rc != 0:
+                return "error", f"fallback fetch 失败: {out[:100]}"
+
+            rc, out = run(
+                ["git", "rev-list", "--count", f"HEAD..upstream/{branch}"],
+                cwd=repo_dir,
+            )
+            behind = int(out.strip() or "0") if rc == 0 else 0
+            if behind == 0:
+                return "synced", "已是最新（无需同步）"
+
+            rc, out = run(
+                ["git", "merge", f"upstream/{branch}", "--no-edit"],
+                cwd=repo_dir, timeout=1800,
+            )
+            if rc != 0:
+                run(["git", "merge", "--abort"], cwd=repo_dir)
+                if "unrelated" in out.lower():
+                    # 上游 force-push/重写历史导致真无共同祖先
+                    # → 这正是 API 422 的成因，允许无关联历史合并
+                    rc, out = run(
+                        ["git", "merge", f"upstream/{branch}", "--no-edit",
+                         "--allow-unrelated-histories"],
+                        cwd=repo_dir, timeout=1800,
+                    )
+                    if rc != 0:
+                        run(["git", "merge", "--abort"], cwd=repo_dir)
+                        return "conflict", f"无共同历史且合并冲突（落后 {behind} 个提交），需手动处理"
+                else:
+                    return "conflict", f"合并冲突（落后 {behind} 个提交），需手动 Sync fork"
+
+            # push（网络抖动时重试 1 次）
+            rc2, out2 = run(["git", "push"], cwd=repo_dir, timeout=1800)
+            if rc2 != 0:
+                time.sleep(5)
+                rc2, out2 = run(["git", "push"], cwd=repo_dir, timeout=1800)
+            if rc2 != 0:
+                return "error", f"push 失败: {out2[:100]}"
+            return "synced", f"clone 兜底成功，已同步上游 {behind} 个提交"
+        except Exception as e:
+            return "error", f"fallback {type(e).__name__}: {str(e)[:100]}"
+        finally:
+            shutil.rmtree(repo_dir, ignore_errors=True)
+
+
 def process_fork(fork):
     """处理单个 fork：纯 API 同步，不 clone"""
     name = fork["name"]
@@ -115,9 +214,11 @@ def process_fork(fork):
     item["upstream"] = upstream
 
     # 2. 上游信息（默认分支 + 最后推送时间）
+    up_branch = branch
     status, up = api("GET", f"/repos/{upstream}")
     if status == 200:
         item["upstream_pushed_at"] = up.get("pushed_at", "")
+        up_branch = up.get("default_branch") or branch
 
     # 3. ⭐ 核心：merge-upstream API（服务端同步，等同网页 Sync fork）
     status, body = api("POST", f"/repos/{USERNAME}/{name}/merge-upstream",
@@ -139,8 +240,12 @@ def process_fork(fork):
         item["note"] = "与上游存在冲突，需在 GitHub 网页手动 Sync fork"
     elif status in (403, 422):
         err_msg = body.get("_error", "") if isinstance(body, dict) else ""
-        item["status"] = "error"
-        item["note"] = f"同步被拒绝 (HTTP {status})：{err_msg[:100] or 'fork 与上游可能无共同历史'}"
+        # ⭐ 兜底：API 被拒（422 常见于无共同历史，403 常见于临时限制）→
+        # 降级为 git clone 方式重试，网页能同步的这里也能同步
+        print(f"   ⚠️ {name}: API 同步被拒 (HTTP {status})，降级 git clone 兜底...")
+        f_status, f_note = fallback_sync(name, upstream, up_branch)
+        item["status"] = f_status
+        item["note"] = f"API {status} → clone 兜底: {f_note}"
     else:
         item["status"] = "error"
         err_msg = body.get("_error", "") if isinstance(body, dict) else ""

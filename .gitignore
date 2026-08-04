@@ -11,3 +11,4 @@ _tmp_*
 .l2s.*
 __pycache__/
 *.pyc
+_fb_selftest/
