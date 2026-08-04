@@ -1,0 +1,93 @@
+/* ============================================================
+   个人站自定义样式（在 VitePress 默认主题之上微调）
+   ============================================================ */
+
+/* ---------- 字体族 ---------- */
+:root {
+  --vp-font-family-base: "MiSans", "PingFang SC", "Microsoft YaHei",
+    "Helvetica Neue", Arial, sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", "SFMono-Regular", Consolas,
+    monospace;
+
+  /* 主题色：改成你喜欢的颜色（这里是靛蓝色） */
+  --vp-c-brand-1: #5b5bd6;
+  --vp-c-brand-2: #7b7be8;
+  --vp-c-brand-3: #4a4ac2;
+}
+
+/* ---------- 首页 Hero 微调 ---------- */
+.VPHero .name {
+  font-size: 44px;
+  line-height: 1.2;
+}
+
+.VPHero .tagline {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 18px;
+}
+
+/* ---------- 首页特性卡片：圆角 + 悬浮效果 ---------- */
+.VPFeature {
+  border-radius: 14px !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.VPFeature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.VPFeature .icon {
+  background: rgba(91, 91, 214, 0.12) !important;
+  color: var(--vp-c-brand-1) !important;
+  border-radius: 12px !important;
+}
+
+/* ---------- 项目页卡片 ---------- */
+.project-card {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.project-card:hover {
+  border-color: var(--vp-c-brand-1);
+  transform: translateX(4px);
+}
+
+.project-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.project-card h3 a {
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.project-card h3 a:hover {
+  text-decoration: underline;
+}
+
+.project-card .desc {
+  color: var(--vp-c-text-2);
+  font-size: 14.5px;
+  margin: 0 0 10px;
+}
+
+.project-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.project-card .tag {
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(91, 91, 214, 0.1);
+  color: var(--vp-c-brand-1);
+}

@@ -1,0 +1,19 @@
+{
+  "name": "my-personal-site",
+  "license": "MIT",
+  "version": "1.0.0",
+  "description": "My personal landing page built with VitePress",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "markdown-it-autospace": "^1.1.4",
+    "remixicon": "^4.9.1",
+    "vitepress": "^1.6.3",
+    "vue": "^3.5.13"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  }
+}
