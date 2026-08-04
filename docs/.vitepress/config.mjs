@@ -72,6 +72,7 @@ export default defineConfig({
       { text: "现在", link: "/now" },
       { text: "关于我", link: "/about" },
       { text: "项目", link: "/projects" },
+      { text: "上游监控", link: "/upstream" },
       { text: "工具箱", link: "/tools" },
       { text: "博客", link: "/blog" },
     ],

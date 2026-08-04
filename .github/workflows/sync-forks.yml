@@ -1,0 +1,44 @@
+# Fork 上游监控 + 自动同步
+# 每天自动运行：同步所有 fork 仓库的上游更新，并生成监控报告
+#
+# ⚠️ 首次使用前需要配置 SYNC_TOKEN（仓库 Secrets）：
+#   GitHub → Settings → Developer settings → Personal access tokens →
+#   Fine-grained tokens → 生成一个具有 repo 写权限的 token →
+#   存到本仓库 Settings → Secrets and variables → Actions → New secret
+#   名称填 SYNC_TOKEN
+
+name: Sync Forks
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 每天 UTC 02:00（北京时间 10:00）
+  workflow_dispatch: # 支持手动触发
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-forks
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Run Fork Sync
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          USERNAME: SunsetRNE
+        run: python3 .github/scripts/sync_forks.py
+
+      - name: Commit Report
+        run: |
+          git config user.name "SunsetRNE"
+          git config user.email "z100o190zgxc@163.com"
+          git add docs/public/fork-status.json
+          git diff --cached --quiet || git commit -m "chore: update fork sync report [skip ci]"
+          git push
