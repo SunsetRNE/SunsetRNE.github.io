@@ -14,7 +14,9 @@
         ↓
 GitHub Actions (Sync Forks)
         ↓
-遍历所有 fork → clone → fetch upstream → merge → push
+遍历所有 fork → 调用 GitHub 官方 merge-upstream API（服务端同步，等同网页 Sync fork 按钮）
+        ↓
+API 被拒（422/403）→ 自动降级 git clone 兜底：clone → fetch upstream → merge → push
         ↓
 生成监控报告 fork-status.json → 推回本仓库
         ↓
@@ -22,8 +24,8 @@ GitHub Actions (Sync Forks)
 ```
 
 - **已同步 ✅**：与上游保持一致，或本次已自动拉取最新代码
-- **冲突跳过 ⚠️**：fork 有本地修改与上游冲突，需要手动处理（GitHub 网页上的 Sync fork 按钮）
-- **失败 ❌**：clone/fetch/push 出错，检查网络或权限
+- **冲突跳过 ⚠️**：fork 有本地修改与上游冲突（git 兜底也无法自动合并），需要手动处理（GitHub 网页上的 Sync fork 按钮）
+- **失败 ❌**：API 与 git 兜底都失败（网络/权限问题），报告里会附详细原因
 
 ## 🔧 手动触发一次同步
 
