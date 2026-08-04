@@ -167,7 +167,7 @@ def fallback_sync(name, upstream, branch):
                 time.sleep(5)
                 rc2, out2 = run(["git", "push"], cwd=repo_dir, timeout=1800)
             if rc2 != 0:
-                return "error", f"push 失败: {out2[:100]}"
+                return "error", f"push 失败: {out2[:400]}"
             return "synced", f"clone 兜底成功，已同步上游 {behind} 个提交"
         except Exception as e:
             return "error", f"fallback {type(e).__name__}: {str(e)[:100]}"

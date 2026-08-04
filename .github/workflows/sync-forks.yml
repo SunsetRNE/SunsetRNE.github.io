@@ -47,9 +47,13 @@ jobs:
         run: python3 .github/scripts/sync_forks.py
 
       - name: Commit Report
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
+          # ⚠️ 必须用 SYNC_TOKEN push：GITHUB_TOKEN 的提交不会触发
+          # 其他 workflow（GitHub 递归防护），会导致站点面板不更新
           git config user.name "SunsetRNE"
           git config user.email "z100o190zgxc@163.com"
           git add docs/public/fork-status.json
           git diff --cached --quiet || git commit -m "chore: update fork sync report"
-          git push
+          git push "https://x-access-token:${SYNC_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
