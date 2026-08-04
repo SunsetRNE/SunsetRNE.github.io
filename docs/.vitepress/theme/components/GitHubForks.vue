@@ -21,8 +21,15 @@ onMounted(async () => {
 
 const filtered = () => {
   if (!report.value) return [];
-  if (filter.value === "all") return report.value.forks;
-  return report.value.forks.filter((f) => f.status === filter.value);
+  // 主表格永远只显示真 fork（自建仓库单独折叠区展示）
+  const forks = report.value.forks.filter((f) => f.status !== "not_fork");
+  if (filter.value === "all") return forks;
+  return forks.filter((f) => f.status === filter.value);
+};
+
+const ownRepos = () => {
+  if (!report.value) return [];
+  return report.value.forks.filter((f) => f.status === "not_fork");
 };
 
 const badge = (status) => ({
@@ -56,23 +63,22 @@ function fmtTime(iso) {
 
     <template v-else>
       <div class="summary">
-        <span class="sum-item"><b>{{ report.total }}</b> 个 fork</span>
+        <span class="sum-item"><b>{{ report.forks.filter(f => f.status !== 'not_fork').length }}</b> 个可同步 fork</span>
         <span class="sum-item ok"><b>{{ report.synced }}</b> 已同步</span>
         <span class="sum-item warn"><b>{{ report.conflict }}</b> 冲突</span>
         <span class="sum-item err"><b>{{ report.error }}</b> 失败</span>
-        <span class="sum-item muted"><b>{{ report.not_fork || 0 }}</b> 自建</span>
         <span class="sum-item muted"><b>{{ report.orphan || 0 }}</b> 上游缺失</span>
         <span class="updated">🕐 报告更新于 {{ fmtTime(report.updated_at) }}</span>
       </div>
 
       <div class="filters">
         <button
-          v-for="f in ['all', 'synced', 'conflict', 'error']"
+          v-for="f in ['all', 'synced', 'conflict', 'error', 'orphan']"
           :key="f"
           :class="['chip', { active: filter === f }]"
           @click="filter = f"
         >
-          {{ { all: "全部", synced: "已同步", conflict: "冲突", error: "失败" }[f] }}
+          {{ { all: "全部", synced: "已同步", conflict: "冲突", error: "失败", orphan: "上游缺失" }[f] }}
         </button>
       </div>
 
@@ -106,6 +112,24 @@ function fmtTime(iso) {
           </tr>
         </tbody>
       </table>
+
+      <!-- 自建仓库：折叠显示，避免混淆 -->
+      <details v-if="ownRepos().length" class="own-fold">
+        <summary>
+          🏠 自建仓库（{{ ownRepos().length }} 个，不参与同步）
+        </summary>
+        <div class="own-list">
+          <a
+            v-for="f in ownRepos()"
+            :key="f.name"
+            :href="`https://github.com/SunsetRNE/${f.name}`"
+            target="_blank"
+            class="own-chip"
+          >
+            {{ f.name }}
+          </a>
+        </div>
+      </details>
     </template>
   </div>
 </template>
@@ -233,6 +257,42 @@ function fmtTime(iso) {
   color: var(--vp-c-text-2);
   white-space: nowrap;
   font-size: 12.5px;
+}
+/* 自建仓库折叠区 */
+.own-fold {
+  margin-top: 18px;
+  border: 1px dashed var(--vp-c-divider);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.own-fold summary {
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--vp-c-text-2);
+  user-select: none;
+}
+.own-fold summary:hover {
+  color: var(--vp-c-brand-1);
+}
+.own-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.own-chip {
+  font-size: 12.5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-2);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.own-chip:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
 }
 @media (max-width: 640px) {
   .fork-table th:nth-child(4),

@@ -8,6 +8,8 @@ Fork 自动同步脚本
 环境变量：
   SYNC_TOKEN : 具有 repo 权限的 PAT（用于跨仓库 clone/push）
   USERNAME   : GitHub 用户名（默认 SunsetRNE）
+  REPOS      : 可选，仅同步指定仓库名（逗号分隔，留空 = 全部）
+  SKIP_REPOS : 可选，跳过的仓库名（逗号分隔，如大型内核仓库）
 """
 import json
 import os
@@ -18,6 +20,8 @@ from datetime import datetime, timezone
 
 USERNAME = os.environ.get("USERNAME", "SunsetRNE")
 TOKEN = os.environ.get("SYNC_TOKEN", "")
+REPOS_FILTER = [x.strip() for x in os.environ.get("REPOS", "").split(",") if x.strip()]
+SKIP_REPOS = [x.strip() for x in os.environ.get("SKIP_REPOS", "").split(",") if x.strip()]
 API = "https://api.github.com"
 WORKSPACE = os.getcwd()
 
@@ -55,6 +59,15 @@ def main():
     # 拉全部仓库再过滤 fork（type=fork 参数不可靠，可能混入自建仓库）
     repos = api(f"/users/{USERNAME}/repos?per_page=100")
     forks = [r for r in repos if r.get("fork")]
+    # 应用手动指定 / 跳过过滤
+    if REPOS_FILTER:
+        forks = [r for r in forks if r["name"] in REPOS_FILTER]
+        print(f"   🔎 手动指定 {len(forks)} 个仓库")
+    if SKIP_REPOS:
+        skipped = [r["name"] for r in forks if r["name"] in SKIP_REPOS]
+        forks = [r for r in forks if r["name"] not in SKIP_REPOS]
+        if skipped:
+            print(f"   ⏭️ 跳过 {len(skipped)} 个仓库: {', '.join(skipped)}")
     print(f"   共发现 {len(forks)} 个 fork（总仓库 {len(repos)}）")
 
     results = []
