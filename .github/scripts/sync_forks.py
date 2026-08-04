@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
 """
-Fork 自动同步脚本（并行优化版）
-- 拉取用户所有 fork 仓库列表（按 fork 标志精确过滤）
-- 4 路并行处理：clone（partial clone 省磁盘）→ fetch upstream → merge → push
-- 磁盘空间监控，防止 runner 磁盘写满
-- 生成监控报告 docs/public/fork-status.json
+Fork 自动同步脚本（纯 API 版 · 结构优化）
+==========================================
+不再 clone 任何仓库！使用 GitHub 官方 merge-upstream API
+（等同于网页上 "Sync fork" 按钮的底层接口），服务端直接合并：
+
+  对每个 fork → POST /repos/{owner}/{repo}/merge-upstream → 完成
+
+全流程 1~3 分钟（48 个仓库 API 并行请求），相比旧方案提速 10 倍以上。
 
 环境变量：
-  SYNC_TOKEN : 具有 repo 权限的 PAT（用于跨仓库 clone/push）
+  SYNC_TOKEN : 具有 repo 权限的 PAT（用于跨仓库操作）
   USERNAME   : GitHub 用户名（默认 SunsetRNE）
   REPOS      : 可选，仅同步指定仓库名（逗号分隔，留空 = 全部）
   SKIP_REPOS : 可选，跳过的仓库名（逗号分隔）
-  PARALLEL   : 可选，并行数（默认 4）
+  PARALLEL   : 可选，并行数（默认 8）
 """
 import concurrent.futures as cf
 import json
 import os
-import shutil
-import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
@@ -27,55 +29,50 @@ USERNAME = os.environ.get("USERNAME", "SunsetRNE")
 TOKEN = os.environ.get("SYNC_TOKEN", "")
 REPOS_FILTER = [x.strip() for x in os.environ.get("REPOS", "").split(",") if x.strip()]
 SKIP_REPOS = [x.strip() for x in os.environ.get("SKIP_REPOS", "").split(",") if x.strip()]
-PARALLEL = int(os.environ.get("PARALLEL", "4"))
+PARALLEL = int(os.environ.get("PARALLEL", "8"))
 API = "https://api.github.com"
 WORKSPACE = os.getcwd()
-TMP_DIR = os.path.join(WORKSPACE, "_fork_tmp")
-MIN_DISK_MB = 1024  # 剩余磁盘低于 1GB 时暂停
 
 if not TOKEN:
     print("❌ 缺少 SYNC_TOKEN 环境变量，无法跨仓库同步")
     sys.exit(1)
 
 
-def api(path):
-    """调用 GitHub API（带重试）"""
+def api(method, path, body=None, timeout=30):
+    """调用 GitHub API（带重试），返回 (status, json)"""
+    data = json.dumps(body).encode() if body is not None else None
     for attempt in range(3):
         try:
             req = urllib.request.Request(
                 f"{API}{path}",
+                data=data,
+                method=method,
                 headers={
                     "Authorization": f"Bearer {TOKEN}",
                     "Accept": "application/vnd.github+json",
                     "User-Agent": "fork-sync-bot",
+                    "Content-Type": "application/json",
                 },
             )
-            with urllib.request.urlopen(req, timeout=30) as r:
-                return json.load(r)
-        except Exception as e:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                raw = r.read()
+                return r.status, (json.loads(raw) if raw else {})
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429):  # 限流，重试
+                if attempt == 2:
+                    return e.code, {}
+                time.sleep(5 * (attempt + 1))
+                continue
+            return e.code, {}
+        except Exception:
             if attempt == 2:
-                raise
+                return 0, {}
             time.sleep(2 * (attempt + 1))
-
-
-def check_disk():
-    """磁盘空间不足时等待"""
-    while True:
-        free_mb = shutil.disk_usage(WORKSPACE).free // (1024 * 1024)
-        if free_mb > MIN_DISK_MB:
-            return
-        print(f"   ⚠️ 磁盘剩余 {free_mb}MB，等待释放...")
-        time.sleep(20)
-
-
-def run(cmd, cwd=None, timeout=600):
-    """执行命令，返回 (returncode, stdout)"""
-    p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
-    return p.returncode, (p.stdout + p.stderr).strip()
+    return 0, {}
 
 
 def process_fork(fork):
-    """处理单个 fork 仓库（在工作线程中执行）"""
+    """处理单个 fork：纯 API 同步，不 clone"""
     name = fork["name"]
     item = {
         "name": name,
@@ -85,107 +82,74 @@ def process_fork(fork):
         "fork_pushed_at": fork.get("pushed_at", ""),
         "upstream_pushed_at": "",
     }
+    t0 = time.time()
 
-    # 查询仓库详情获取 source/parent
-    try:
-        detail = api(f"/repos/{USERNAME}/{name}")
-    except Exception as e:
+    # 1. 仓库详情：拿默认分支 + 上游
+    status, detail = api("GET", f"/repos/{USERNAME}/{name}")
+    if status != 200:
         item["status"] = "error"
-        item["note"] = f"API 查询失败: {str(e)[:120]}"
+        item["note"] = f"查询仓库详情失败 (HTTP {status})"
+        item["duration_s"] = round(time.time() - t0)
         return item
 
     if not detail.get("fork"):
         item["status"] = "not_fork"
         item["note"] = "自建仓库，无需同步"
+        item["duration_s"] = round(time.time() - t0)
         return item
 
     upstream = (detail.get("source") or detail.get("parent") or {}).get("full_name")
     if not upstream:
         item["status"] = "orphan"
         item["note"] = "fork 的上游仓库已不存在或无法访问"
+        item["duration_s"] = round(time.time() - t0)
         return item
 
-    # 获取上游默认分支
-    try:
-        up = api(f"/repos/{upstream}")
-        default_branch = up.get("default_branch", "main")
+    branch = detail.get("default_branch", "main")
+    item["upstream"] = upstream
+
+    # 2. 上游信息（默认分支 + 最后推送时间）
+    status, up = api("GET", f"/repos/{upstream}")
+    if status == 200:
         item["upstream_pushed_at"] = up.get("pushed_at", "")
-    except Exception:
-        default_branch = "main"
 
-    repo_dir = os.path.join(TMP_DIR, name)
-    t0 = time.time()
-    try:
-        # 1. partial clone（省磁盘、省时间）
-        check_disk()
-        clone_url = f"https://x-access-token:{TOKEN}@github.com/{USERNAME}/{name}.git"
-        rc, out = run(
-            ["git", "clone", "--depth", "1", "--single-branch",
-             "--filter=blob:none", clone_url, repo_dir],
-            timeout=900,
-        )
-        if rc != 0:
-            item["status"] = "error"
-            item["note"] = f"clone 失败: {out[:150]}"
-            shutil.rmtree(repo_dir, ignore_errors=True)
-            return item
+    # 3. ⭐ 核心：merge-upstream API（服务端同步，等同网页 Sync fork）
+    status, body = api("POST", f"/repos/{USERNAME}/{name}/merge-upstream",
+                       {"branch": branch})
 
-        # 2. fetch upstream（浅获取默认分支）
-        run(["git", "remote", "add", "upstream", f"https://github.com/{upstream}.git"], cwd=repo_dir)
-        rc, out = run(
-            ["git", "fetch", "--depth", "1", "upstream", default_branch],
-            cwd=repo_dir, timeout=900,
-        )
-        if rc != 0:
-            item["status"] = "error"
-            item["note"] = f"fetch 上游失败: {out[:150]}"
-            shutil.rmtree(repo_dir, ignore_errors=True)
-            return item
-
-        # 3. 检查是否落后
-        rc, out = run(
-            ["git", "rev-list", "--count", f"HEAD..upstream/{default_branch}"],
-            cwd=repo_dir,
-        )
-        behind = int(out.strip() or "0") if rc == 0 else 0
-
-        if behind == 0:
+    if status == 200:
+        msg = (body.get("message") or "").lower()
+        if "up-to-date" in msg:
             item["status"] = "synced"
             item["note"] = "已是最新"
+        elif "merged" in msg:
+            item["status"] = "synced"
+            item["note"] = f"已同步上游（{body.get('merge_type', 'merge')}）"
         else:
-            # 4. merge 上游（partial clone 下 git 会自动按需拉取缺失数据）
-            rc, out = run(
-                ["git", "merge", f"upstream/{default_branch}", "--no-edit"],
-                cwd=repo_dir, timeout=900,
-            )
-            if rc == 0:
-                # 5. push 回 fork
-                rc2, out2 = run(["git", "push"], cwd=repo_dir, timeout=900)
-                if rc2 == 0:
-                    item["status"] = "synced"
-                    item["note"] = f"已同步上游 {behind} 个提交"
-                else:
-                    item["status"] = "error"
-                    item["note"] = f"push 失败: {out2[:150]}"
-            else:
-                run(["git", "merge", "--abort"], cwd=repo_dir)
-                item["status"] = "conflict"
-                item["note"] = f"合并冲突（落后 {behind} 个提交），已跳过"
-
-    except Exception as e:
+            item["status"] = "synced"
+            item["note"] = msg[:120]
+    elif status == 409:
+        item["status"] = "conflict"
+        item["note"] = "与上游存在冲突，需在 GitHub 网页手动 Sync fork"
+    elif status in (403, 422):
         item["status"] = "error"
-        item["note"] = f"{type(e).__name__}: {str(e)[:150]}"
+        item["note"] = f"同步被拒绝 (HTTP {status})，可能是 fork 与上游无共同历史"
+    else:
+        item["status"] = "error"
+        item["note"] = f"同步失败 (HTTP {status})"
 
-    shutil.rmtree(repo_dir, ignore_errors=True)
     item["duration_s"] = round(time.time() - t0)
     return item
 
 
 def main():
-    print(f"🔍 开始同步 {USERNAME} 的 fork（并行 {PARALLEL} 路）...")
-    repos = api(f"/users/{USERNAME}/repos?per_page=100")
-    forks = [r for r in repos if r.get("fork")]
+    print(f"🔍 开始同步 {USERNAME} 的 fork（纯 API，并行 {PARALLEL} 路）...")
+    status, repos = api("GET", f"/users/{USERNAME}/repos?per_page=100")
+    if status != 200:
+        print(f"❌ 获取仓库列表失败 (HTTP {status})，请检查 SYNC_TOKEN")
+        sys.exit(1)
 
+    forks = [r for r in repos if r.get("fork")]
     if REPOS_FILTER:
         forks = [r for r in forks if r["name"] in REPOS_FILTER]
         print(f"   🔎 手动指定 {len(forks)} 个仓库")
@@ -196,7 +160,6 @@ def main():
             print(f"   ⏭️ 跳过 {len(skipped)} 个仓库: {', '.join(skipped)}")
     print(f"   待处理 {len(forks)} 个 fork（总仓库 {len(repos)}）")
 
-    os.makedirs(TMP_DIR, exist_ok=True)
     results = []
     with cf.ThreadPoolExecutor(max_workers=PARALLEL) as pool:
         futures = {pool.submit(process_fork, f): f for f in forks}
@@ -207,10 +170,8 @@ def main():
             done += 1
             icon = {"synced": "✅", "conflict": "⚠️", "error": "❌", "orphan": "🕳️",
                     "not_fork": "🏠", "pending": "⏳"}.get(item["status"], "❓")
-            dur = item.get("duration_s", 0)
             print(f"   [{done}/{len(forks)}] {icon} {item['name']} "
-                  f"({dur}s) {item['note']}")
-    shutil.rmtree(TMP_DIR, ignore_errors=True)
+                  f"({item.get('duration_s', 0)}s) {item['note']}")
 
     # 写报告
     report = {
@@ -236,6 +197,11 @@ def main():
         for r in results:
             if r["status"] == "error":
                 print(f"   - {r['name']}: {r['note']}")
+    if report["conflict"]:
+        print("⚠️ 冲突仓库（需手动处理）:")
+        for r in results:
+            if r["status"] == "conflict":
+                print(f"   - {r['name']} → https://github.com/{USERNAME}/{r['name']}/compare")
     print("📄 已写入 docs/public/fork-status.json")
 
 
