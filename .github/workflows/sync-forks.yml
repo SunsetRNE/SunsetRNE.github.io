@@ -51,5 +51,5 @@ jobs:
           git config user.name "SunsetRNE"
           git config user.email "z100o190zgxc@163.com"
           git add docs/public/fork-status.json
-          git diff --cached --quiet || git commit -m "chore: update fork sync report [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: update fork sync report"
           git push

@@ -63,7 +63,12 @@ def api(method, path, body=None, timeout=30):
                     return e.code, {}
                 time.sleep(5 * (attempt + 1))
                 continue
-            return e.code, {}
+            # 读取错误详情用于诊断
+            try:
+                err = json.loads(e.read().decode() or "{}")
+                return e.code, {"_error": err.get("message", "")}
+            except Exception:
+                return e.code, {"_error": ""}
         except Exception:
             if attempt == 2:
                 return 0, {}
@@ -98,7 +103,8 @@ def process_fork(fork):
         item["duration_s"] = round(time.time() - t0)
         return item
 
-    upstream = (detail.get("source") or detail.get("parent") or {}).get("full_name")
+    # 上游：优先 parent（实际同步对象），其次 source（原始源头）
+    upstream = (detail.get("parent") or detail.get("source") or {}).get("full_name")
     if not upstream:
         item["status"] = "orphan"
         item["note"] = "fork 的上游仓库已不存在或无法访问"
@@ -132,11 +138,13 @@ def process_fork(fork):
         item["status"] = "conflict"
         item["note"] = "与上游存在冲突，需在 GitHub 网页手动 Sync fork"
     elif status in (403, 422):
+        err_msg = body.get("_error", "") if isinstance(body, dict) else ""
         item["status"] = "error"
-        item["note"] = f"同步被拒绝 (HTTP {status})，可能是 fork 与上游无共同历史"
+        item["note"] = f"同步被拒绝 (HTTP {status})：{err_msg[:100] or 'fork 与上游可能无共同历史'}"
     else:
         item["status"] = "error"
-        item["note"] = f"同步失败 (HTTP {status})"
+        err_msg = body.get("_error", "") if isinstance(body, dict) else ""
+        item["note"] = f"同步失败 (HTTP {status}){('：' + err_msg[:100]) if err_msg else ''}"
 
     item["duration_s"] = round(time.time() - t0)
     return item
