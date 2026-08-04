@@ -9,3 +9,5 @@ docs/.vitepress/cache
 .operit/
 _tmp_*
 .l2s.*
+__pycache__/
+*.pyc
