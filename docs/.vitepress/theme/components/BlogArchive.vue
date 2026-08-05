@@ -29,7 +29,7 @@ const pad = (n) => String(n).padStart(2, "0");
 const fmt = (d) =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
-const heatWeeks = computed(() => {
+const heatCells = computed(() => {
   const countMap = {};
   posts.forEach((p) => {
     if (p.date) countMap[p.date] = (countMap[p.date] || 0) + 1;
@@ -39,18 +39,16 @@ const heatWeeks = computed(() => {
   sunday.setDate(today.getDate() - today.getDay()); // 本周日
   const start = new Date(sunday);
   start.setDate(sunday.getDate() - 51 * 7); // 52 周前
-  const weeks = [];
+  const cells = [];
   for (let w = 0; w < 52; w++) {
-    const col = [];
     for (let d = 0; d < 7; d++) {
       const dt = new Date(start);
       dt.setDate(start.getDate() + w * 7 + d);
       const key = fmt(dt);
-      col.push({ key, count: countMap[key] || 0 });
+      cells.push({ key, count: countMap[key] || 0 });
     }
-    weeks.push(col);
   }
-  return weeks;
+  return cells;
 });
 
 const heatLevel = (count) => (count >= 3 ? 3 : count);
@@ -91,15 +89,13 @@ function pickTag(t) {
     <div class="heatmap-block">
       <p class="block-title">🔥 写作热力图 · 近 52 周</p>
       <div class="heatmap">
-        <div v-for="(col, wi) in heatWeeks" :key="wi" class="heat-col">
-          <div
-            v-for="(cell, di) in col"
-            :key="di"
-            class="heat-cell"
-            :class="`lv-${heatLevel(cell.count)}`"
-            :title="`${cell.key} · ${cell.count} 篇`"
-          ></div>
-        </div>
+        <div
+          v-for="(cell, i) in heatCells"
+          :key="i"
+          class="heat-cell"
+          :class="`lv-${heatLevel(cell.count)}`"
+          :title="`${cell.key} · ${cell.count} 篇`"
+        ></div>
       </div>
       <div class="heatmap-legend">
         <span class="legend-text">少</span>
@@ -240,17 +236,17 @@ function pickTag(t) {
 }
 .heatmap {
   display: grid;
+  grid-template-rows: repeat(7, 10px);
   grid-auto-flow: column;
-  grid-template-rows: repeat(7, 11px);
-  grid-auto-columns: 11px;
-  gap: 3px;
+  grid-auto-columns: 10px;
+  gap: 2px;
   overflow-x: auto;
   padding-bottom: 2px;
 }
 .heat-cell {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
   background: var(--vp-c-bg-alt);
   border: 1px solid var(--vp-c-divider);
 }

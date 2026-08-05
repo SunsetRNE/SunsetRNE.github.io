@@ -2,7 +2,7 @@
 title: Android 内核编译完整流程（含 KernelSU 集成）
 date: 2026-08-05
 description: 从同步源码到刷机上机的完整流程：build.sh 与 Kleaf 两代构建系统、GKI 内核编译、KernelSU 三种集成方式（镜像/LKM/非GKI），以及 Pixel 刷写与常见坑。
-tags: [Android, 内核, KernelSU, GKI, Kleaf]
+tags: [内核]
 ---
 
 # Android 内核编译完整流程（含 KernelSU 集成）
