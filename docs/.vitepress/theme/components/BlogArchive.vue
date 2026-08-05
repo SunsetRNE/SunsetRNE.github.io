@@ -29,8 +29,9 @@ const tagMap = computed(() => {
   return new Map(entries);
 });
 const tagCount = computed(() => tagMap.value.size);
-const newest = computed(() => (posts[0] ? posts[0].date : "—"));
-const oldest = computed(() =>
+// 编年史（最早在前）：posts[0] 最早，posts[last] 最新
+const oldest = computed(() => (posts[0] ? posts[0].date : "—"));
+const newest = computed(() =>
   posts.length > 0 ? posts[posts.length - 1].date : "—"
 );
 
@@ -42,7 +43,7 @@ const fmt = (d) =>
 const heatCells = computed(() => {
   const countMap = {};
   posts.forEach((p) => {
-    if (p.date) countMap[p.date] = (countMap[p.date] || 0) + 1;
+    if (p.date) countMap[p.date.slice(0, 10)] = (countMap[p.date.slice(0, 10)] || 0) + 1; // 按天聚合（date 含时间）
   });
   const today = new Date();
   const sunday = new Date(today);
@@ -86,11 +87,11 @@ function pickTag(t) {
         <span class="label">标签</span>
       </div>
       <div class="stat">
-        <span class="num date-num">{{ oldest }}</span>
+        <span class="num date-num">{{ oldest.slice(0, 10) }}</span>
         <span class="label">始于</span>
       </div>
       <div class="stat">
-        <span class="num date-num">{{ newest }}</span>
+        <span class="num date-num">{{ newest.slice(0, 10) }}</span>
         <span class="label">最近更新</span>
       </div>
     </div>
@@ -130,7 +131,10 @@ function pickTag(t) {
     <!-- ============ 时间线视图 ============ -->
     <div v-if="view === 'timeline'" class="timeline">
       <div v-for="p in posts" :key="p.url" class="tl-item">
-        <div class="tl-date">{{ p.date }}</div>
+        <div class="tl-date">
+          <span class="tl-date-d">{{ p.date.slice(0, 10) }}</span>
+          <span class="tl-date-t">{{ p.date.slice(11) }}</span>
+        </div>
         <div class="tl-dot"></div>
         <div class="tl-card">
           <h3><a :href="p.url">{{ p.title }}</a></h3>
@@ -341,10 +345,18 @@ function pickTag(t) {
 }
 .tl-date {
   font-family: var(--vp-font-family-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--vp-c-text-3);
   padding-top: 6px;
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.45;
+}
+.tl-date-t {
+  font-size: 11px;
+  opacity: 0.85;
 }
 .tl-dot {
   width: 12px;
