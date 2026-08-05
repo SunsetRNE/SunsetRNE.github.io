@@ -2,6 +2,7 @@ import DefaultTheme from "vitepress/theme";
 import Layout from "./Layout.vue";
 import GitHubRepos from "./components/GitHubRepos.vue";
 import GitHubForks from "./components/GitHubForks.vue";
+import BlogArchive from "./components/BlogArchive.vue";
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import { NolebaseEnhancedReadabilitiesPlugin } from "@nolebase/vitepress-plugin-enhanced-readabilities/client";
@@ -23,5 +24,6 @@ export default {
     enhanceAppWithTabs(app);
     app.component("GitHubRepos", GitHubRepos);
     app.component("GitHubForks", GitHubForks);
+    app.component("BlogArchive", BlogArchive);
   },
 };

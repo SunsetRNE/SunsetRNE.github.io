@@ -1,23 +1,6 @@
 # 📝 博客
 
 > 记录折腾 Android 底层、内核构建与自动化工具的过程。
+> 文章列表自动从 `docs/blog/posts/` 扫描生成，写新文章只需新建 Markdown 文件，无需手动维护。
 
-想写的时候，在 `docs/blog/posts/` 下新建一个 Markdown 文件，然后在下面加一行链接即可：
-
-```md
----
-title: 文章标题
-date: 2026-08-04
-tags: [Android, 内核]
----
-
-正文……
-```
-
-| 日期 | 文章 | 分类 |
-| --- | --- | --- |
-| 2026-08-05 | [Termux 从零开始（一）：下载、安装与手机基本操作](./blog/posts/termux-beginner-install-and-basics) | Termux |
-| 2026-08-05 | [Termux 从零开始（二）：常用指令大白话入门](./blog/posts/termux-basic-commands) | Termux |
-| 2026-08-05 | [Termux 从零开始（三）：组合指令与实用套路](./blog/posts/termux-combined-commands) | Termux |
-| 2026-08-05 | [Android 内核编译完整流程（含 KernelSU 集成）](./blog/posts/android-kernel-build-with-ksu) | 内核 |
-| 2026-08-05 | [把个人主页变成自动化的个人工作站](./blog/posts/from-homepage-to-workstation) | 建站 |
+<BlogArchive />
