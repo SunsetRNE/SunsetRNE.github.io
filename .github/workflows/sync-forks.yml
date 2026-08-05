@@ -50,10 +50,18 @@ jobs:
         env:
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
-          # ⚠️ 必须用 SYNC_TOKEN push：GITHUB_TOKEN 的提交不会触发
-          # 其他 workflow（GitHub 递归防护），会导致站点面板不更新
           git config user.name "SunsetRNE"
           git config user.email "z100o190zgxc@163.com"
           git add docs/public/fork-status.json
           git diff --cached --quiet || git commit -m "chore: update fork sync report"
-          git push "https://x-access-token:${SYNC_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          # ⚠️ 必须清除 extraheader：actions/checkout 注入的 GITHUB_TOKEN
+          # 会覆盖 URL 里的 SYNC_TOKEN，导致 push 用 GITHUB_TOKEN 认证，
+          # 而 GITHUB_TOKEN 的 push 不会触发其他 workflow（递归防护）
+          git -c http.https://github.com/.extraheader= push \
+            "https://x-access-token:${SYNC_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          # 双保险：显式触发 Deploy Pages（workflow_dispatch 事件 100% 生效）
+          curl -s -X POST \
+            -H "Authorization: Bearer ${SYNC_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/dispatches" \
+            -d '{"ref":"main"}'
