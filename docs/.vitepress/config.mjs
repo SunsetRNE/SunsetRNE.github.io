@@ -2,6 +2,11 @@ import { defineConfig } from "vitepress";
 import mdAutoSpacing from "markdown-it-autospace";
 import { withMermaid } from "vitepress-plugin-mermaid";
 import { GitChangelog } from "@nolebase/vitepress-plugin-git-changelog";
+import footnote from "markdown-it-footnote";
+import taskLists from "markdown-it-task-lists";
+import mdKatex from "markdown-it-katex";
+import lightbox from "vitepress-plugin-lightbox";
+import { tabsMarkdownPlugin } from "vitepress-plugin-tabs";
 
 // ============================================================
 // ⚙️ SunsetRNE 个人工作站配置
@@ -128,6 +133,12 @@ export default withMermaid(defineConfig({
         mojikumi: true,
         spacingItems: ["code_inline"],
       });
+      // 脚注、任务列表、KaTeX 数学公式、图片灯箱、选项卡
+      md.use(footnote);
+      md.use(taskLists, { enabled: true, label: true });
+      md.use(mdKatex);
+      md.use(lightbox, {});
+      md.use(tabsMarkdownPlugin);
     },
   },
 
@@ -138,5 +149,12 @@ export default withMermaid(defineConfig({
         repoURL: "https://github.com/SunsetRNE/SunsetRNE.github.io",
       }),
     ],
+    ssr: {
+      // nolebase 插件 dist 内含 .vue 源文件，需交给 Vite 处理而非 node 直接加载
+      noExternal: [
+        "@nolebase/vitepress-plugin-enhanced-readabilities",
+        "@nolebase/vitepress-plugin-git-changelog",
+      ],
+    },
   },
 }));
