@@ -22,7 +22,6 @@ export default withMermaid(defineConfig({
 
   cleanUrls: true, // 生成 /about 而不是 /about.html
   lastUpdated: true, // 页面底部显示最后更新时间
-  lastUpdatedText: "最后更新于", // 更新时间前缀（默认英文 "Last updated"）
 
   sitemap: {
     hostname: SITE, // 自动生成 sitemap.xml，利于 SEO
@@ -74,6 +73,9 @@ export default withMermaid(defineConfig({
   ],
 
   themeConfig: {
+    // 更新时间前缀（默认英文 "Last updated"）
+    lastUpdatedText: "最后更新于",
+
     // 本地全文搜索（VitePress 内置 local provider，基于 minisearch）
     search: {
       provider: "local",
