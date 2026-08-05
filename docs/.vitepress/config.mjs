@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import fs from "node:fs";
 import mdAutoSpacing from "markdown-it-autospace";
 import { withMermaid } from "vitepress-plugin-mermaid";
 import { GitChangelog } from "@nolebase/vitepress-plugin-git-changelog";
@@ -14,6 +15,11 @@ import { tabsMarkdownPlugin } from "vitepress-plugin-tabs";
 
 const USERNAME = "SunsetRNE";
 const SITE = `https://${USERNAME}.github.io`;
+
+// 404 兜底跳转用的项目名列表（构建时从 projects.json 读取，内联进 404.html）
+const PROJECT_NAMES = JSON.parse(
+  fs.readFileSync(new URL("../public/projects.json", import.meta.url), "utf-8")
+).projects.map((p) => p.name);
 
 export default withMermaid(defineConfig({
   lang: "zh-CN",
@@ -155,11 +161,11 @@ export default withMermaid(defineConfig({
   },
 
   // ---------- 404 兜底跳转：/项目名 → /projects/项目名/ ----------
-  // 匹配 docs/public/projects.json；保持默认 404 页面外观，仅注入跳转脚本
+  // 项目列表在构建时内联进 404.html（同步判断，零异步，不会因页面早期加载中断而失效）
   transformHtml(code, id) {
     if (id.endsWith("404.html")) {
-      const script =
-        "<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;fetch('/projects.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var l=d.projects||[];for(var i=0;i<l.length;i++){if(l[i].name.toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i].name)+'/');return}}}).catch(function(){})})();<\\/script>";
+      const names = JSON.stringify(PROJECT_NAMES);
+      const script = `<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;var l=${names};for(var i=0;i<l.length;i++){if(l[i].toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i])+'/');return}}})();<\\/script>`;
       return code.replace("</body>", script + "</body>");
     }
   },
