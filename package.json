@@ -1,8 +1,8 @@
 {
-  "name": "my-personal-site",
+  "name": "sunsetrne-github-io",
   "license": "MIT",
   "version": "1.0.0",
-  "description": "My personal landing page built with VitePress",
+  "description": "SunsetRNE 个人工作站：VitePress 驱动的 GitHub Pages 站点 + Fork 上游自动同步监控",
   "type": "module",
   "private": true,
   "dependencies": {
