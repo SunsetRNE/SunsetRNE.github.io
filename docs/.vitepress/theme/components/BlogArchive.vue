@@ -153,7 +153,7 @@ function pickTag(t) {
           全部
         </button>
         <button
-          v-for="(list, t) in tagMap"
+          v-for="([t, list]) in tagMap"
           :key="t"
           class="chip"
           :class="{ active: activeTag === t }"
@@ -175,7 +175,7 @@ function pickTag(t) {
         </div>
       </template>
       <template v-else>
-        <div v-for="(list, t) in tagMap" :key="t" class="tag-group">
+        <div v-for="([t, list]) in tagMap" :key="t" class="tag-group">
           <h3 class="group-title">
             {{ t }} <span class="tag-num">{{ list.length }} 篇</span>
           </h3>
