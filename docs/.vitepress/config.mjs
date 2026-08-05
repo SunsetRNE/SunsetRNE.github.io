@@ -22,6 +22,7 @@ export default withMermaid(defineConfig({
 
   cleanUrls: true, // 生成 /about 而不是 /about.html
   lastUpdated: true, // 页面底部显示最后更新时间
+  lastUpdatedText: "最后更新于", // 更新时间前缀（默认英文 "Last updated"）
 
   sitemap: {
     hostname: SITE, // 自动生成 sitemap.xml，利于 SEO
@@ -115,6 +116,15 @@ export default withMermaid(defineConfig({
     // 文档页右侧目录层级
     outline: {
       level: [2, 3],
+      label: "本页目录", // 右侧目录标题（默认英文 "On this page"）
+    },
+
+    // 404 页面文案（默认英文）
+    notFound: {
+      title: "页面走丢了",
+      quote: "这个页面不存在，可能链接写错了，或者内容被移动了。",
+      linkLabel: "回到首页",
+      linkText: "返回首页",
     },
 
     // 返回顶部按钮
