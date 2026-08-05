@@ -7,6 +7,7 @@ const loading = ref(true);
 const error = ref("");
 const filter = ref("all");
 const sortBy = ref("name"); // name | upstream
+const search = ref("");
 const history = ref([]);
 
 onMounted(async () => {
@@ -34,6 +35,15 @@ const filtered = () => {
   const forks = report.value.forks.filter((f) => f.status !== "not_fork");
   let list = forks;
   if (filter.value !== "all") list = list.filter((f) => f.status === filter.value);
+  // 搜索：名称或上游包含关键字
+  const kw = search.value.trim().toLowerCase();
+  if (kw) {
+    list = list.filter(
+      (f) =>
+        f.name.toLowerCase().includes(kw) ||
+        (f.upstream || "").toLowerCase().includes(kw)
+    );
+  }
   // 排序：按名称 / 按上游最后更新时间（活跃度）
   if (sortBy.value === "upstream") {
     list = [...list].sort(
@@ -133,6 +143,12 @@ const trendLabel = (iso) => {
         >
           {{ { all: "全部", synced: "已同步", conflict: "冲突", error: "失败", orphan: "上游缺失" }[f] }}
         </button>
+        <input
+          v-model="search"
+          class="search-input"
+          type="text"
+          placeholder="🔍 搜索仓库名 / 上游…"
+        />
         <span class="sort-group">
           <span class="sort-label">排序</span>
           <button :class="['chip', { active: sortBy === 'name' }]" @click="sortBy = 'name'">名称</button>
@@ -160,39 +176,46 @@ const trendLabel = (iso) => {
         </div>
       </div>
 
-      <table class="fork-table">
-        <thead>
-          <tr>
-            <th>我的 fork</th>
-            <th>上游仓库</th>
-            <th>状态</th>
-            <th>上游活跃</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="f in filtered()" :key="f.name">
-            <td>
-              <a :href="`https://github.com/SunsetRNE/${f.name}`" target="_blank">
-                {{ f.name }}
-              </a>
-            </td>
-            <td>
-              <a v-if="f.upstream" :href="`https://github.com/${f.upstream}`" target="_blank">
-                {{ f.upstream }}
-              </a>
-              <span v-else>—</span>
-            </td>
-            <td>
-              <span :class="['badge', badge(f.status).cls]">{{ badge(f.status).text }}</span>
-              <div class="note">{{ f.note }}</div>
-              <div v-if="behindInfo(f)" :class="['behind', behindInfo(f).cls]">
-                {{ behindInfo(f).text }}
-              </div>
-            </td>
-            <td class="time">{{ fmtAgo(f.upstream_pushed_at) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="fork-table">
+          <thead>
+            <tr>
+              <th>我的 fork</th>
+              <th>上游仓库</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="f in filtered()"
+              :key="f.name"
+              :class="['row', f.status]"
+            >
+              <td>
+                <a :href="`https://github.com/SunsetRNE/${f.name}`" target="_blank">
+                  {{ f.name }}
+                </a>
+                <div class="sub">fork 更新 {{ fmtAgo(f.fork_pushed_at) }}</div>
+              </td>
+              <td>
+                <a v-if="f.upstream" :href="`https://github.com/${f.upstream}`" target="_blank">
+                  {{ f.upstream }}
+                </a>
+                <span v-else>—</span>
+                <div class="sub">上游更新 {{ fmtAgo(f.upstream_pushed_at) }}</div>
+              </td>
+              <td>
+                <span :class="['badge', badge(f.status).cls]">{{ badge(f.status).text }}</span>
+                <div class="note">{{ f.note }}</div>
+                <div v-if="behindInfo(f)" :class="['behind', behindInfo(f).cls]">
+                  {{ behindInfo(f).text }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="!filtered().length" class="no-result">没有匹配的仓库</div>
+      </div>
 
       <!-- 自建仓库：折叠显示，避免混淆 -->
       <details v-if="ownRepos().length" class="own-fold">
@@ -281,6 +304,24 @@ const trendLabel = (iso) => {
 }
 .sort-label {
   font-size: 12.5px;
+  color: var(--vp-c-text-3);
+}
+/* 搜索框 */
+.search-input {
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  width: 180px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus {
+  border-color: var(--vp-c-brand-1);
+}
+.search-input::placeholder {
   color: var(--vp-c-text-3);
 }
 /* 同步历史趋势图 */
@@ -384,13 +425,23 @@ const trendLabel = (iso) => {
   border-collapse: collapse;
   font-size: 13.5px;
 }
+.table-wrap {
+  max-height: 72vh;
+  overflow: auto;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+}
 .fork-table th {
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 10px;
   border-bottom: 2px solid var(--vp-c-divider);
   color: var(--vp-c-text-2);
   font-weight: 600;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--vp-c-bg);
 }
 .fork-table td {
   padding: 9px 10px;
@@ -405,6 +456,27 @@ const trendLabel = (iso) => {
 }
 .fork-table a:hover {
   text-decoration: underline;
+}
+/* 状态行着色：整行浅色，异常快速扫描 */
+.fork-table tr.row.synced { background: rgba(34, 160, 107, 0.05); }
+.fork-table tr.row.conflict { background: rgba(217, 119, 6, 0.10); }
+.fork-table tr.row.error { background: rgba(220, 38, 38, 0.10); }
+.fork-table tr.row.orphan { background: var(--vp-c-bg-soft); }
+.fork-table tr.row:hover { background: var(--vp-c-bg-soft); }
+.fork-table tr.row.synced:hover { background: rgba(34, 160, 107, 0.09); }
+.fork-table tr.row.conflict:hover { background: rgba(217, 119, 6, 0.15); }
+.fork-table tr.row.error:hover { background: rgba(220, 38, 38, 0.15); }
+/* fork/上游 双时间小字 */
+.sub {
+  font-size: 11.5px;
+  color: var(--vp-c-text-3);
+  margin-top: 2px;
+}
+.no-result {
+  padding: 18px;
+  text-align: center;
+  color: var(--vp-c-text-3);
+  font-size: 13px;
 }
 .badge {
   display: inline-block;
@@ -465,9 +537,15 @@ const trendLabel = (iso) => {
   color: var(--vp-c-brand-1);
 }
 @media (max-width: 640px) {
-  .fork-table th:nth-child(4),
-  .fork-table td:nth-child(4) {
-    display: none;
+  .search-input {
+    width: 100%;
+  }
+  .sort-group {
+    margin-left: 0;
+    width: 100%;
+  }
+  .fork-table .note {
+    max-width: 180px;
   }
 }
 </style>
