@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-08-05T01:06:41Z",
+  "updated_at": "2026-08-05T01:19:30Z",
   "total": 49,
-  "synced": 46,
-  "conflict": 3,
+  "synced": 48,
+  "conflict": 1,
   "error": 0,
   "orphan": 0,
   "not_fork": 0,
@@ -53,15 +53,6 @@
       "duration_s": 1
     },
     {
-      "name": "android_kernel_common_oneplus_sm8850",
-      "upstream": "cctv18/android_kernel_common_oneplus_sm8850",
-      "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/sm8850_v_16.0.0_oneplus_15.",
-      "fork_pushed_at": "2026-07-24T22:28:22Z",
-      "upstream_pushed_at": "2026-07-24T22:28:22Z",
-      "duration_s": 1
-    },
-    {
       "name": "android_kernel_common_oneplus_sm8650",
       "upstream": "cctv18/android_kernel_common_oneplus_sm8650",
       "status": "synced",
@@ -77,6 +68,15 @@
       "note": "this branch is not behind the upstream cctv18:oneplus/sm8845_b_16.0.0_ace_6t.",
       "fork_pushed_at": "2026-05-09T02:28:28Z",
       "upstream_pushed_at": "2026-05-09T02:28:28Z",
+      "duration_s": 1
+    },
+    {
+      "name": "android_kernel_common_oneplus_sm8850",
+      "upstream": "cctv18/android_kernel_common_oneplus_sm8850",
+      "status": "synced",
+      "note": "this branch is not behind the upstream cctv18:oneplus/sm8850_v_16.0.0_oneplus_15.",
+      "fork_pushed_at": "2026-07-24T22:28:22Z",
+      "upstream_pushed_at": "2026-07-24T22:28:22Z",
       "duration_s": 1
     },
     {
@@ -98,12 +98,12 @@
       "duration_s": 1
     },
     {
-      "name": "cloudmail",
-      "upstream": "Yuyuyang/cloudmail",
+      "name": "android_kernel_oneplus_mt6993",
+      "upstream": "cctv18/android_kernel_oneplus_mt6993",
       "status": "synced",
-      "note": "this branch is not behind the upstream yuyuyang:main.",
-      "fork_pushed_at": "2025-11-24T01:56:02Z",
-      "upstream_pushed_at": "2025-11-24T01:56:02Z",
+      "note": "this branch is not behind the upstream cctv18:oneplus/mt6993_b_16.0_ace_6_ultra.",
+      "fork_pushed_at": "2026-07-24T22:23:54Z",
+      "upstream_pushed_at": "2026-07-24T22:23:54Z",
       "duration_s": 1
     },
     {
@@ -116,21 +116,21 @@
       "duration_s": 1
     },
     {
-      "name": "box",
-      "upstream": "boxproxy/box",
-      "status": "synced",
-      "note": "this branch is not behind the upstream boxproxy:master.",
-      "fork_pushed_at": "2026-07-11T13:14:05Z",
-      "upstream_pushed_at": "2026-07-07T15:36:42Z",
-      "duration_s": 1
-    },
-    {
       "name": "android_kernel_oppo_mt6993",
       "upstream": "cctv18/android_kernel_oppo_mt6993",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:oppo/mt6993_b_16.0.0_find_x9.",
       "fork_pushed_at": "2026-02-06T04:41:56Z",
       "upstream_pushed_at": "2026-02-06T04:41:56Z",
+      "duration_s": 1
+    },
+    {
+      "name": "cloudmail",
+      "upstream": "Yuyuyang/cloudmail",
+      "status": "synced",
+      "note": "this branch is not behind the upstream yuyuyang:main.",
+      "fork_pushed_at": "2025-11-24T01:56:02Z",
+      "upstream_pushed_at": "2025-11-24T01:56:02Z",
       "duration_s": 1
     },
     {
@@ -143,12 +143,12 @@
       "duration_s": 1
     },
     {
-      "name": "android_kernel_oneplus_mt6993",
-      "upstream": "cctv18/android_kernel_oneplus_mt6993",
+      "name": "box",
+      "upstream": "boxproxy/box",
       "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/mt6993_b_16.0_ace_6_ultra.",
-      "fork_pushed_at": "2026-07-24T22:23:54Z",
-      "upstream_pushed_at": "2026-07-24T22:23:54Z",
+      "note": "this branch is not behind the upstream boxproxy:master.",
+      "fork_pushed_at": "2026-07-11T13:14:05Z",
+      "upstream_pushed_at": "2026-07-07T15:36:42Z",
       "duration_s": 1
     },
     {
@@ -170,15 +170,6 @@
       "duration_s": 1
     },
     {
-      "name": "FlClash",
-      "upstream": "chen08209/FlClash",
-      "status": "synced",
-      "note": "this branch is not behind the upstream chen08209:main.",
-      "fork_pushed_at": "2026-07-17T14:21:53Z",
-      "upstream_pushed_at": "2026-08-04T09:20:04Z",
-      "duration_s": 1
-    },
-    {
       "name": "CSLyric",
       "upstream": "tomakino/CSLyric",
       "status": "synced",
@@ -188,21 +179,21 @@
       "duration_s": 1
     },
     {
+      "name": "FlClash",
+      "upstream": "chen08209/FlClash",
+      "status": "synced",
+      "note": "this branch is not behind the upstream chen08209:main.",
+      "fork_pushed_at": "2026-07-17T14:21:53Z",
+      "upstream_pushed_at": "2026-08-04T09:20:04Z",
+      "duration_s": 1
+    },
+    {
       "name": "headroom",
       "upstream": "headroomlabs-ai/headroom",
       "status": "synced",
       "note": "this branch is not behind the upstream headroomlabs-ai:main.",
       "fork_pushed_at": "2026-08-05T00:16:16Z",
-      "upstream_pushed_at": "2026-08-04T23:49:42Z",
-      "duration_s": 1
-    },
-    {
-      "name": "GKI_KernelSU_SUSFS",
-      "upstream": "zzh20188/GKI_KernelSU_SUSFS",
-      "status": "synced",
-      "note": "this branch is not behind the upstream zzh20188:dev.",
-      "fork_pushed_at": "2026-08-04T17:02:22Z",
-      "upstream_pushed_at": "2026-07-30T14:25:52Z",
+      "upstream_pushed_at": "2026-08-05T01:10:13Z",
       "duration_s": 1
     },
     {
@@ -212,6 +203,15 @@
       "note": "this branch is not behind the upstream frknkrc44:master.",
       "fork_pushed_at": "2026-08-04T17:02:04Z",
       "upstream_pushed_at": "2026-08-05T00:12:41Z",
+      "duration_s": 1
+    },
+    {
+      "name": "GKI_KernelSU_SUSFS",
+      "upstream": "zzh20188/GKI_KernelSU_SUSFS",
+      "status": "synced",
+      "note": "this branch is not behind the upstream zzh20188:dev.",
+      "fork_pushed_at": "2026-08-04T17:02:22Z",
+      "upstream_pushed_at": "2026-07-30T14:25:52Z",
       "duration_s": 1
     },
     {
@@ -242,6 +242,15 @@
       "duration_s": 1
     },
     {
+      "name": "KernelSU",
+      "upstream": "tiann/KernelSU",
+      "status": "synced",
+      "note": "this branch is not behind the upstream tiann:main.",
+      "fork_pushed_at": "2026-08-03T15:59:50Z",
+      "upstream_pushed_at": "2026-08-04T16:44:24Z",
+      "duration_s": 1
+    },
+    {
       "name": "InxLocker",
       "upstream": "Chimioo/InxLocker",
       "status": "synced",
@@ -260,12 +269,12 @@
       "duration_s": 1
     },
     {
-      "name": "KernelSU",
-      "upstream": "tiann/KernelSU",
+      "name": "kernel_manifest",
+      "upstream": "Xiaomichael/kernel_manifest",
       "status": "synced",
-      "note": "this branch is not behind the upstream tiann:main.",
-      "fork_pushed_at": "2026-08-03T15:59:50Z",
-      "upstream_pushed_at": "2026-08-04T16:44:24Z",
+      "note": "this branch is not behind the upstream xiaomichael:oneplus/sm8650.",
+      "fork_pushed_at": "2026-08-05T01:13:52Z",
+      "upstream_pushed_at": "2026-06-13T06:44:03Z",
       "duration_s": 1
     },
     {
@@ -284,15 +293,6 @@
       "note": "this branch is not behind the upstream vernesong:alpha.",
       "fork_pushed_at": "2026-08-05T00:14:58Z",
       "upstream_pushed_at": "2026-08-03T09:36:00Z",
-      "duration_s": 1
-    },
-    {
-      "name": "kernel_manifest",
-      "upstream": "Xiaomichael/kernel_manifest",
-      "status": "conflict",
-      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
-      "fork_pushed_at": "2025-09-27T07:58:38Z",
-      "upstream_pushed_at": "2026-06-13T06:44:03Z",
       "duration_s": 1
     },
     {
@@ -332,21 +332,21 @@
       "duration_s": 1
     },
     {
-      "name": "open-interpreter",
-      "upstream": "openinterpreter/openinterpreter",
-      "status": "conflict",
-      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
-      "fork_pushed_at": "2026-02-09T09:19:51Z",
-      "upstream_pushed_at": "2026-08-01T23:18:17Z",
-      "duration_s": 1
-    },
-    {
       "name": "OPPO-Realme_kernel_4.14_MT6853",
       "upstream": "sanba0519/OPPO-Realme_kernel_4.14_MT6853",
       "status": "synced",
       "note": "this branch is not behind the upstream sanba0519:main.",
       "fork_pushed_at": "2026-07-31T13:12:55Z",
       "upstream_pushed_at": "2026-08-04T16:10:37Z",
+      "duration_s": 1
+    },
+    {
+      "name": "open-interpreter",
+      "upstream": "openinterpreter/openinterpreter",
+      "status": "conflict",
+      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
+      "fork_pushed_at": "2026-02-09T09:19:51Z",
+      "upstream_pushed_at": "2026-08-01T23:18:17Z",
       "duration_s": 1
     },
     {
@@ -404,30 +404,12 @@
       "duration_s": 1
     },
     {
-      "name": "sora-editor-SunsetRNE",
-      "upstream": "Rosemoe/sora-editor",
-      "status": "synced",
-      "note": "this branch is not behind the upstream rosemoe:main.",
-      "fork_pushed_at": "2026-08-05T00:15:00Z",
-      "upstream_pushed_at": "2026-08-04T20:51:03Z",
-      "duration_s": 1
-    },
-    {
       "name": "SukiSU-Ultra",
       "upstream": "SukiSU-Ultra/SukiSU-Ultra",
       "status": "synced",
       "note": "this branch is not behind the upstream sukisu-ultra:main.",
       "fork_pushed_at": "2026-08-05T00:15:01Z",
       "upstream_pushed_at": "2026-07-25T07:21:41Z",
-      "duration_s": 1
-    },
-    {
-      "name": "susfs4oki",
-      "upstream": "cctv18/susfs4oki",
-      "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oki-android14-6.1.",
-      "fork_pushed_at": "2026-07-22T10:12:15Z",
-      "upstream_pushed_at": "2026-07-22T10:12:15Z",
       "duration_s": 1
     },
     {
@@ -440,13 +422,31 @@
       "duration_s": 1
     },
     {
+      "name": "sora-editor-SunsetRNE",
+      "upstream": "Rosemoe/sora-editor",
+      "status": "synced",
+      "note": "this branch is not behind the upstream rosemoe:main.",
+      "fork_pushed_at": "2026-08-05T00:15:00Z",
+      "upstream_pushed_at": "2026-08-04T20:51:03Z",
+      "duration_s": 1
+    },
+    {
+      "name": "susfs4oki",
+      "upstream": "cctv18/susfs4oki",
+      "status": "synced",
+      "note": "this branch is not behind the upstream cctv18:oki-android14-6.1.",
+      "fork_pushed_at": "2026-07-22T10:12:15Z",
+      "upstream_pushed_at": "2026-07-22T10:12:15Z",
+      "duration_s": 1
+    },
+    {
       "name": "Wild_KSU",
       "upstream": "WildKernels/Wild_KSU",
-      "status": "conflict",
-      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
-      "fork_pushed_at": "2025-10-16T14:36:01Z",
+      "status": "synced",
+      "note": "this branch is not behind the upstream wildkernels:dev.",
+      "fork_pushed_at": "2026-08-05T01:17:58Z",
       "upstream_pushed_at": "2026-04-25T14:09:10Z",
-      "duration_s": 2
+      "duration_s": 1
     }
   ]
 }
