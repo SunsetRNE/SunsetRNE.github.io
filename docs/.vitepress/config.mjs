@@ -111,7 +111,7 @@ export default withMermaid(defineConfig({
 
     // 页脚
     footer: {
-      message: "用 ❤️ 和 VitePress 构建",
+      message: "能跑就行 🏃",
       copyright: "Copyright © 2026 SunsetRNE",
     },
 
