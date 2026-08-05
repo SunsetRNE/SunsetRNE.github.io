@@ -7,15 +7,15 @@
 <div class="project-card">
 
 ### [Sundown](https://github.com/SunsetRNE/Sundown)
-<div class="desc">Android 底层安全研究工具集（Rust 为主）：C 守护进程（TCP 通信 + ptrace 注入）、dex 模块（ART 运行时注入与动态加载）、Magisk 模块封装，模块化架构，已跑通发布闭环。</div>
-<div class="tags"><span class="tag">Rust</span><span class="tag">Magisk</span><span class="tag">Android</span></div>
+<div class="desc">面向 KernelSU 系的 Android 墓碑（应用冻结）调度模块。从 AStop/Cerberus 演进而来：脱离 LSPosed 依赖，改用自有 Zygisk 探针 + KSU WebUI 管理，全链路支持热更新。</div>
+<div class="tags"><span class="tag">Rust</span><span class="tag">KernelSU</span><span class="tag">Zygisk</span></div>
 
 </div>
 
 <div class="project-card">
 
-### [oppo_oplus_realme](https://github.com/SunsetRNE/oppo_oplus_realme_sm8650)
-<div class="desc">Oppo/OnePlus/Realme 骁龙平台自动内核构建器家族：按芯片分仓库维护——sm8650（★6）、sm8750（★2）、sm8850，用完全自动化的流水线替代手动编译。</div>
+### [oppo_oplus_realme](https://github.com/SunsetRNE/oppo_oplus_realme)
+<div class="desc">欧加真内核统一构建平台：脱离上游、更好的三合一平台。按芯片分仓库维护——sm8650（★6）、sm8750（★2）、sm8850，用完全自动化的流水线替代手动编译。</div>
 <div class="tags"><span class="tag">Shell</span><span class="tag">Kernel</span><span class="tag">CI</span></div>
 
 </div>
@@ -23,7 +23,7 @@
 <div class="project-card">
 
 ### [auto-green](https://github.com/SunsetRNE/auto-green)
-<div class="desc">自动化小工具合集（Shell），围绕日常重复操作的自动化。*（描述待补充）*</div>
+<div class="desc">基于 GitHub Actions 的贡献图自动化工具：自动提交、历史回填、绿墙图案，让贡献图保持活跃（测试性折腾项目，请勿复刻）。</div>
 <div class="tags"><span class="tag">Shell</span><span class="tag">Automation</span></div>
 
 </div>
@@ -31,7 +31,7 @@
 <div class="project-card">
 
 ### [SunsetGtiHub](https://github.com/SunsetRNE/SunsetGtiHub)
-<div class="desc">Kotlin 写的 Android GitHub 客户端：OAuth 登录、仓库/Issue/Actions 管理、文件在线编辑，界面正逐步迁移到 Compose。*（描述待校准）*</div>
+<div class="desc">第三方 GitHub 安卓客户端，尝试更个性的项目。</div>
 <div class="tags"><span class="tag">Kotlin</span><span class="tag">Android</span></div>
 
 </div>
@@ -39,7 +39,7 @@
 <div class="project-card">
 
 ### [InstallerX_Zsunset](https://github.com/SunsetRNE/InstallerX_Zsunset)
-<div class="desc">基于 InstallerX-Revived 的变体：提供精准替换系统安装器的 Magisk/KernelSU/APatch 模块方案（只做模块化替换框架，不开发安装器 App 本体）。</div>
+<div class="desc">基于 [InstallerX-Revived](https://github.com/wxxsfxyzm/InstallerX-Revived) 项目，提供精准替换系统安装器的 Magisk/KernelSU/APatch 模块方案（不开发安装器 App 本体，仅提供模块化替换框架）。</div>
 <div class="tags"><span class="tag">Shell</span><span class="tag">Magisk</span></div>
 
 </div>
