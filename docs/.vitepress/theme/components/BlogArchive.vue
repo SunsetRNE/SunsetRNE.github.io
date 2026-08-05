@@ -204,7 +204,7 @@ function pickTag(t) {
   font-size: 26px;
   font-weight: 700;
   font-family: var(--vp-font-family-mono);
-  background: linear-gradient(135deg, var(--vp-c-brand-1), #8b5cf6);
+  background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-grad-2, #8b5cf6));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
