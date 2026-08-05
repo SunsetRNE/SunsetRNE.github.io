@@ -1,6 +1,8 @@
 node_modules
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/.vitepress/.temp
+docs/.vitepress/*.timestamp-*.mjs
 .DS_Store
 *.local
 
