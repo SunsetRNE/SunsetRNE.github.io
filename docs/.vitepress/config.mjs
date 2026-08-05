@@ -154,6 +154,16 @@ export default withMermaid(defineConfig({
     },
   },
 
+  // ---------- 404 兜底跳转：/项目名 → /projects/项目名/ ----------
+  // 匹配 docs/public/projects.json；保持默认 404 页面外观，仅注入跳转脚本
+  transformHtml(code, id) {
+    if (id.endsWith("404.html")) {
+      const script =
+        "<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;fetch('/projects.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var l=d.projects||[];for(var i=0;i<l.length;i++){if(l[i].name.toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i].name)+'/');return}}}).catch(function(){})})();<\\/script>";
+      return code.replace("</body>", script + "</body>");
+    }
+  },
+
   // ---------- 第三方插件 ----------
   vite: {
     plugins: [

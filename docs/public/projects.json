@@ -1,0 +1,36 @@
+{
+  "$comment": "项目收录表：根级 URL 兜底跳转用。访问 /项目名 时 404 页会查此表，命中则跳转 /projects/项目名/。后续可接入 sync_forks 自动同步。",
+  "updated": "2026-08-06",
+  "projects": [
+    {
+      "name": "oppo_oplus_realme",
+      "title": "oppo_oplus_realme",
+      "desc": "欧加真内核统一构建平台：脱离上游、更好的三合一平台",
+      "repo": "https://github.com/SunsetRNE/oppo_oplus_realme"
+    },
+    {
+      "name": "Sundown",
+      "title": "Sundown",
+      "desc": "面向 KernelSU 系的 Android 墓碑（应用冻结）调度模块",
+      "repo": "https://github.com/SunsetRNE/Sundown"
+    },
+    {
+      "name": "auto-green",
+      "title": "auto-green",
+      "desc": "基于 GitHub Actions 的贡献图自动化工具",
+      "repo": "https://github.com/SunsetRNE/auto-green"
+    },
+    {
+      "name": "SunsetGtiHub",
+      "title": "SunsetGtiHub",
+      "desc": "第三方 GitHub 安卓客户端，尝试更个性的项目",
+      "repo": "https://github.com/SunsetRNE/SunsetGtiHub"
+    },
+    {
+      "name": "InstallerX_Zsunset",
+      "title": "InstallerX_Zsunset",
+      "desc": "基于 InstallerX-Revived 的改造版",
+      "repo": "https://github.com/SunsetRNE/InstallerX_Zsunset"
+    }
+  ]
+}

@@ -14,3 +14,4 @@ _tmp_*
 __pycache__/
 *.pyc
 _fb_selftest/
+templates/
