@@ -109,7 +109,7 @@ export default withMermaid(defineConfig({
     // 页脚
     footer: {
       message: "用 ❤️ 和 VitePress 构建",
-      copyright: "Copyright © 2025 SunsetRNE",
+      copyright: "Copyright © 2026 SunsetRNE",
     },
 
     // 文档页右侧目录层级

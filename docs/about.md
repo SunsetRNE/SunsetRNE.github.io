@@ -30,5 +30,3 @@
 
 - GitHub：[SunsetRNE](https://github.com/SunsetRNE)
 - 本站：[sunsetrne.github.io](https://sunsetrne.github.io)
-
-> ✏️ 想加邮箱/Telegram/其他链接？直接编辑 `docs/about.md` 的"联系方式"一节，push 后自动更新。
