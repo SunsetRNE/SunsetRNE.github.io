@@ -1,5 +1,7 @@
 import { defineConfig } from "vitepress";
 import mdAutoSpacing from "markdown-it-autospace";
+import { withMermaid } from "vitepress-plugin-mermaid";
+import { GitChangelog } from "@nolebase/vitepress-plugin-git-changelog";
 
 // ============================================================
 // ⚙️ SunsetRNE 个人工作站配置
@@ -8,7 +10,7 @@ import mdAutoSpacing from "markdown-it-autospace";
 const USERNAME = "SunsetRNE";
 const SITE = `https://${USERNAME}.github.io`;
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   lang: "zh-CN",
   title: "SunsetRNE",
   description: "Android 内核构建 · 开源折腾者——骁龙内核自动构建器与各种小项目",
@@ -66,6 +68,21 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    // 本地全文搜索（VitePress 内置 local provider，基于 minisearch）
+    search: {
+      provider: "local",
+      options: {
+        translations: {
+          button: { buttonText: "搜索", buttonAriaLabel: "搜索" },
+          modal: {
+            noResultsText: "未找到相关结果",
+            resetButtonTitle: "清除搜索条件",
+            footer: { selectText: "选择", navigateText: "切换", closeText: "关闭" },
+          },
+        },
+      },
+    },
+
     // 顶部导航
     nav: [
       { text: "首页", link: "/" },
@@ -113,4 +130,13 @@ export default defineConfig({
       });
     },
   },
-});
+
+  // ---------- 第三方插件 ----------
+  vite: {
+    plugins: [
+      GitChangelog({
+        repoURL: "https://github.com/SunsetRNE/SunsetRNE.github.io",
+      }),
+    ],
+  },
+}));
