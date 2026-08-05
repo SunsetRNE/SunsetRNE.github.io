@@ -60,8 +60,9 @@ jobs:
           git -c http.https://github.com/.extraheader= push \
             "https://x-access-token:${SYNC_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
           # 双保险：显式触发 Deploy Pages（workflow_dispatch 事件 100% 生效）
+          # ⚠️ 用 GITHUB_TOKEN：fine-grained token 无 Actions 权限会 403
           curl -s -X POST \
-            -H "Authorization: Bearer ${SYNC_TOKEN}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/dispatches" \
             -d '{"ref":"main"}'
