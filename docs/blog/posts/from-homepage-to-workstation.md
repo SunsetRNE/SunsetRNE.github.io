@@ -2,7 +2,7 @@
 title: 把个人主页变成自动化的个人工作站
 date: 2026-08-05
 description: 从零搭建 SunsetRNE.github.io 的全过程：VitePress + GitHub Pages + 48 个 fork 的自动同步系统，以及一路踩过的那些坑。
-tags: [站点笔记]
+tags: [杂谈, 项目]
 ---
 
 # 把个人主页变成自动化的个人工作站

@@ -7,6 +7,8 @@ const view = ref("timeline"); // timeline | tags
 const activeTag = ref("");
 
 const total = computed(() => posts.length);
+// 预定义分类顺序（新分类追加在末尾；未列出的标签自动排到后面）
+const CATEGORY_ORDER = ["杂谈", "教程", "资源", "讨论", "推荐", "项目"];
 const tagMap = computed(() => {
   const m = new Map();
   posts.forEach((p) => {
@@ -15,8 +17,16 @@ const tagMap = computed(() => {
       m.get(t).push(p);
     });
   });
-  // 按文章数量降序
-  return new Map([...m.entries()].sort((a, b) => b[1].length - a[1].length));
+  // 按预定义顺序排序；未知标签按文章数降序排后面
+  const entries = [...m.entries()].sort((a, b) => {
+    const ia = CATEGORY_ORDER.indexOf(a[0]);
+    const ib = CATEGORY_ORDER.indexOf(b[0]);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return b[1].length - a[1].length;
+  });
+  return new Map(entries);
 });
 const tagCount = computed(() => tagMap.value.size);
 const newest = computed(() => (posts[0] ? posts[0].date : "—"));

@@ -2,7 +2,7 @@
 title: Termux 从零开始（二）：常用指令大白话入门
 date: 2026-08-05
 description: 认路（pwd/ls/cd）、建文件（mkdir/touch/nano）、文件操作（cp/mv/rm）、装软件（pkg）、看系统状态，全部大白话解释 + 错误速查表。零基础看完就能跟着本站教程操作。
-tags: [终端]
+tags: [教程]
 ---
 
 # Termux 从零开始（二）：常用指令大白话入门
