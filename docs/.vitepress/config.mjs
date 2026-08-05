@@ -165,7 +165,7 @@ export default withMermaid(defineConfig({
   transformHtml(code, id) {
     if (id.endsWith("404.html")) {
       const names = JSON.stringify(PROJECT_NAMES);
-      const script = `<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;var l=${names};for(var i=0;i<l.length;i++){if(l[i].toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i])+'/');return}}})();<\\/script>`;
+      const script = `<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;var l=${names};for(var i=0;i<l.length;i++){if(l[i].toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i])+'/');return}}})();</script>`;
       return code.replace("</body>", script + "</body>");
     }
   },
