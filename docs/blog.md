@@ -16,4 +16,5 @@ tags: [Android, 内核]
 
 | 日期 | 文章 | 分类 |
 | --- | --- | --- |
+| 2026-08-05 | [Android 内核编译完整流程（含 KernelSU 集成）](./blog/posts/android-kernel-build-with-ksu) | 内核 |
 | 2026-08-05 | [把个人主页变成自动化的个人工作站](./blog/posts/from-homepage-to-workstation) | 建站 |
