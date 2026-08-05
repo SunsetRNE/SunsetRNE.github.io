@@ -226,6 +226,8 @@ def process_fork(fork):
 
     if status == 200:
         msg = (body.get("message") or "").lower()
+        # 同步成功：fork 已更新到最新，pushed_at 刷新为当前时间
+        item["fork_pushed_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         if "up-to-date" in msg:
             item["status"] = "synced"
             item["note"] = "已是最新"
@@ -246,6 +248,8 @@ def process_fork(fork):
         f_status, f_note = fallback_sync(name, upstream, up_branch)
         item["status"] = f_status
         item["note"] = f"API {status} → clone 兜底: {f_note}"
+        if f_status == "synced":
+            item["fork_pushed_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         item["status"] = "error"
         err_msg = body.get("_error", "") if isinstance(body, dict) else ""
@@ -301,6 +305,27 @@ def main():
     os.makedirs(report_dir, exist_ok=True)
     with open(os.path.join(report_dir, "fork-status.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
+
+    # 同步历史（趋势图数据源）：追加本次结果，保留最近 30 次
+    history_path = os.path.join(report_dir, "fork-history.json")
+    history = []
+    if os.path.exists(history_path):
+        try:
+            with open(history_path, encoding="utf-8") as f:
+                history = json.load(f)
+        except Exception:
+            history = []
+    history.append({
+        "updated_at": report["updated_at"],
+        "total": report["total"],
+        "synced": report["synced"],
+        "conflict": report["conflict"],
+        "error": report["error"],
+        "orphan": report["orphan"],
+    })
+    history = history[-30:]
+    with open(history_path, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
 
     print(f"\n📊 报告: 共 {report['total']} | ✅ 同步 {report['synced']} | "
           f"⚠️ 冲突 {report['conflict']} | ❌ 失败 {report['error']} | "

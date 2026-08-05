@@ -1,5 +1,5 @@
+# pnpm 11 安全策略：允许 esbuild 运行构建脚本（VitePress 构建必需）
 allowBuilds:
-  esbuild: set this to true or false
-# pnpm 安全策略：允许 esbuild 运行构建脚本（VitePress 构建必需）
+  esbuild: true
 onlyBuiltDependencies:
   - esbuild

@@ -27,6 +27,12 @@ API 被拒（422/403）→ 自动降级 git clone 兜底：clone → fetch upstr
 - **冲突跳过 ⚠️**：fork 有本地修改与上游冲突（git 兜底也无法自动合并），需要手动处理（GitHub 网页上的 Sync fork 按钮）
 - **失败 ❌**：API 与 git 兜底都失败（网络/权限问题），报告里会附详细原因
 
+面板小技巧：
+- **排序**可切换「名称 / 上游活跃度」（按上游最后更新时间）
+- **上游活跃**列显示相对时间（X 分钟/小时/天前）
+- 冲突/失败仓库显示**落后约 X 天**（上游更新与 fork 的差距）
+- **📈 趋势图**：近 14 次同步的 同步/冲突/失败 堆叠柱状图
+
 ## 🔧 手动触发一次同步
 
 去 [Actions → Sync Forks](https://github.com/SunsetRNE/SunsetRNE.github.io/actions/workflows/sync-forks.yml) 点 **Run workflow**。

@@ -6,6 +6,8 @@ const report = ref(null);
 const loading = ref(true);
 const error = ref("");
 const filter = ref("all");
+const sortBy = ref("name"); // name | upstream
+const history = ref([]);
 
 onMounted(async () => {
   try {
@@ -17,14 +19,30 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+  // 同步历史（趋势图）
+  try {
+    const hr = await fetch("/fork-history.json", { cache: "no-store" });
+    if (hr.ok) history.value = await hr.json();
+  } catch (e) {
+    /* 历史文件可能还不存在，忽略 */
+  }
 });
 
 const filtered = () => {
   if (!report.value) return [];
   // 主表格永远只显示真 fork（自建仓库单独折叠区展示）
   const forks = report.value.forks.filter((f) => f.status !== "not_fork");
-  if (filter.value === "all") return forks;
-  return forks.filter((f) => f.status === filter.value);
+  let list = forks;
+  if (filter.value !== "all") list = list.filter((f) => f.status === filter.value);
+  // 排序：按名称 / 按上游最后更新时间（活跃度）
+  if (sortBy.value === "upstream") {
+    list = [...list].sort(
+      (a, b) => (b.upstream_pushed_at || "").localeCompare(a.upstream_pushed_at || "")
+    );
+  } else {
+    list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return list;
 };
 
 const ownRepos = () => {
@@ -46,6 +64,41 @@ function fmtTime(iso) {
   const d = new Date(iso);
   return d.toLocaleString("zh-CN", { hour12: false });
 }
+
+// 相对时间：x分钟/小时/天前
+function fmtAgo(iso) {
+  if (!iso) return "—";
+  const t = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (t < 60) return "刚刚";
+  if (t < 3600) return Math.floor(t / 60) + " 分钟前";
+  if (t < 86400) return Math.floor(t / 3600) + " 小时前";
+  if (t < 86400 * 30) return Math.floor(t / 86400) + " 天前";
+  return new Date(iso).toLocaleDateString("zh-CN");
+}
+
+// 落后估算：上游最后更新 - fork 最后更新（同步成功则已是最新）
+function behindInfo(f) {
+  if (f.status === "synced") return { text: "已是最新", cls: "ok" };
+  if (!f.fork_pushed_at || !f.upstream_pushed_at) return null;
+  const diff =
+    (new Date(f.upstream_pushed_at) - new Date(f.fork_pushed_at)) / 86400000;
+  if (diff <= 0.5) return null;
+  return {
+    text: `落后约 ${Math.round(diff)} 天`,
+    cls: f.status === "conflict" ? "warn" : "err",
+  };
+}
+
+// 趋势图：柱高按占比（相对 total）
+const trend = () => history.value.slice(-14);
+const segH = (h, key) => {
+  const total = h.total || 1;
+  return { height: Math.max(2, Math.round((h[key] / total) * 100)) + "%" };
+};
+const trendLabel = (iso) => {
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+};
 </script>
 
 <template>
@@ -80,6 +133,31 @@ function fmtTime(iso) {
         >
           {{ { all: "全部", synced: "已同步", conflict: "冲突", error: "失败", orphan: "上游缺失" }[f] }}
         </button>
+        <span class="sort-group">
+          <span class="sort-label">排序</span>
+          <button :class="['chip', { active: sortBy === 'name' }]" @click="sortBy = 'name'">名称</button>
+          <button :class="['chip', { active: sortBy === 'upstream' }]" @click="sortBy = 'upstream'">上游活跃度</button>
+        </span>
+      </div>
+
+      <!-- 同步历史趋势（近 14 次） -->
+      <div v-if="trend().length" class="trend">
+        <div class="trend-head">
+          <b>📈 近 {{ trend().length }} 次同步趋势</b>
+          <span class="trend-legend">
+            <i class="dot ok"></i>已同步 <i class="dot warn"></i>冲突 <i class="dot err"></i>失败
+          </span>
+        </div>
+        <div class="trend-chart">
+          <div v-for="(h, i) in trend()" :key="i" class="trend-col">
+            <div class="trend-bar" :title="`${trendLabel(h.updated_at)}: 同步${h.synced} 冲突${h.conflict} 失败${h.error}`">
+              <div class="seg err" :style="segH(h, 'error')"></div>
+              <div class="seg warn" :style="segH(h, 'conflict')"></div>
+              <div class="seg ok" :style="segH(h, 'synced')"></div>
+            </div>
+            <div class="trend-date">{{ trendLabel(h.updated_at) }}</div>
+          </div>
+        </div>
       </div>
 
       <table class="fork-table">
@@ -88,7 +166,7 @@ function fmtTime(iso) {
             <th>我的 fork</th>
             <th>上游仓库</th>
             <th>状态</th>
-            <th>上游最后更新</th>
+            <th>上游活跃</th>
           </tr>
         </thead>
         <tbody>
@@ -107,8 +185,11 @@ function fmtTime(iso) {
             <td>
               <span :class="['badge', badge(f.status).cls]">{{ badge(f.status).text }}</span>
               <div class="note">{{ f.note }}</div>
+              <div v-if="behindInfo(f)" :class="['behind', behindInfo(f).cls]">
+                {{ behindInfo(f).text }}
+              </div>
             </td>
-            <td class="time">{{ fmtTime(f.upstream_pushed_at) }}</td>
+            <td class="time">{{ fmtAgo(f.upstream_pushed_at) }}</td>
           </tr>
         </tbody>
       </table>
@@ -189,7 +270,96 @@ function fmtTime(iso) {
   display: flex;
   gap: 8px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
 }
+.sort-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sort-label {
+  font-size: 12.5px;
+  color: var(--vp-c-text-3);
+}
+/* 同步历史趋势图 */
+.trend {
+  margin-bottom: 14px;
+  padding: 14px 18px;
+  background: var(--vp-c-bg-soft);
+  border-radius: 12px;
+}
+.trend-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+}
+.trend-legend {
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.trend-legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.dot.ok { background: #22a06b; }
+.dot.warn { background: #d97706; }
+.dot.err { background: #dc2626; }
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 86px;
+  padding-top: 4px;
+}
+.trend-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.trend-bar {
+  width: 100%;
+  max-width: 34px;
+  height: 66px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--vp-c-divider);
+}
+.trend-bar .seg { width: 100%; }
+.seg.ok { background: #22a06b; }
+.seg.warn { background: #d97706; }
+.seg.err { background: #dc2626; }
+.trend-date {
+  font-size: 10.5px;
+  color: var(--vp-c-text-3);
+  white-space: nowrap;
+}
+/* 落后估算 */
+.behind {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.behind.ok { color: #22a06b; }
+.behind.warn { color: #d97706; }
+.behind.err { color: #dc2626; }
 .chip {
   border: 1px solid var(--vp-c-divider);
   background: transparent;
