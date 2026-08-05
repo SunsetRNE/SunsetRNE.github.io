@@ -1,10 +1,10 @@
 /* ============================================================
    个人站自定义样式（VitePress 默认主题之上）
    ============================================================
-   主题换肤体系：html[data-theme] 控制整套配色，
-   与 VitePress 自带深色模式（.dark）正交组合：
-   4 套主题 × 深浅模式 = 8 种外观。
-   切换逻辑见 components/ThemeSwitcher.vue
+   配色直接融入 VitePress 自带深浅模式：
+   - :root      → 浅色（靛蓝）
+   - html.dark  → 深色（靛蓝深色，跟随系统/右上角切换）
+   如需扩展更多配色皮肤，可在此添加选择器（如 html[data-skin="x"]）。
    ============================================================ */
 
 /* ---------- 字体族 ---------- */
@@ -15,17 +15,17 @@
     monospace;
 }
 
-/* ============================================================
-   主题 1：默认靛蓝（现状风格）
-   ============================================================ */
-html[data-theme="default"] {
+/* ---------- 品牌色（浅色） ---------- */
+:root {
   --vp-c-brand-1: #5b5bd6;
   --vp-c-brand-2: #7b7be8;
   --vp-c-brand-3: #4a4ac2;
   --vp-c-brand-soft: rgba(91, 91, 214, 0.16);
-  --vp-c-brand-grad-2: #8b5cf6; /* 渐变第二色 */
+  --vp-c-brand-grad-2: #8b5cf6; /* 标题渐变的第二色 */
 }
-html[data-theme="default"]:not(.dark) {
+
+/* ---------- 浅色背景 / 文字 / 边框 ---------- */
+:root {
   --vp-c-bg: #ffffff;
   --vp-c-bg-soft: #f6f6f7;
   --vp-c-bg-alt: #f6f6f7;
@@ -37,7 +37,15 @@ html[data-theme="default"]:not(.dark) {
   --vp-c-divider: #e2e2e3;
   --vp-c-border: #c2c2c4;
 }
-html[data-theme="default"].dark {
+
+/* ---------- 深色背景 / 文字 / 边框（跟随 VitePress 深色模式） ---------- */
+html.dark {
+  --vp-c-brand-1: #7b7be8;
+  --vp-c-brand-2: #8f8ff0;
+  --vp-c-brand-3: #5b5bd6;
+  --vp-c-brand-soft: rgba(123, 123, 232, 0.2);
+  --vp-c-brand-grad-2: #8b5cf6;
+
   --vp-c-bg: #1e1e20;
   --vp-c-bg-soft: #262629;
   --vp-c-bg-alt: #161618;
@@ -48,132 +56,6 @@ html[data-theme="default"].dark {
   --vp-c-text-3: rgba(235, 235, 245, 0.38);
   --vp-c-divider: #2e2e32;
   --vp-c-border: #3e3e44;
-}
-
-/* ============================================================
-   主题 2：荧光极客（黑绿 + 荧光绿，终端感）
-   ============================================================ */
-html[data-theme="geek"] {
-  --vp-c-brand-1: #00b36b;
-  --vp-c-brand-2: #00d97f;
-  --vp-c-brand-3: #00995c;
-  --vp-c-brand-soft: rgba(0, 230, 138, 0.14);
-  --vp-c-brand-grad-2: #00e5ff;
-}
-html[data-theme="geek"]:not(.dark) {
-  --vp-c-bg: #f2faf6;
-  --vp-c-bg-soft: #e8f5ee;
-  --vp-c-bg-alt: #e0f0e6;
-  --vp-c-bg-elv: #f7fdfa;
-  --vp-c-bg-elv-mute: #e8f5ee;
-  --vp-c-text-1: #123c2c;
-  --vp-c-text-2: rgba(18, 60, 44, 0.75);
-  --vp-c-text-3: rgba(18, 60, 44, 0.55);
-  --vp-c-divider: #cfe8da;
-  --vp-c-border: #a8d4be;
-}
-html[data-theme="geek"].dark {
-  --vp-c-bg: #0b1210;
-  --vp-c-bg-soft: #101a15;
-  --vp-c-bg-alt: #070d0a;
-  --vp-c-bg-elv: #121d17;
-  --vp-c-bg-elv-mute: #101a15;
-  --vp-c-text-1: rgba(230, 255, 244, 0.88);
-  --vp-c-text-2: rgba(190, 230, 210, 0.6);
-  --vp-c-text-3: rgba(190, 230, 210, 0.38);
-  --vp-c-divider: #1d2e24;
-  --vp-c-border: #2a4234;
-}
-
-/* ============================================================
-   主题 3：暖纸墨（米白纸感 + 墨色 + 赭红点缀，阅读向）
-   ============================================================ */
-html[data-theme="paper"] {
-  --vp-c-brand-1: #b5651d;
-  --vp-c-brand-2: #c97f3d;
-  --vp-c-brand-3: #9c5413;
-  --vp-c-brand-soft: rgba(181, 101, 29, 0.15);
-  --vp-c-brand-grad-2: #c0392b;
-}
-html[data-theme="paper"]:not(.dark) {
-  --vp-c-bg: #faf6ee;
-  --vp-c-bg-soft: #f3ecdd;
-  --vp-c-bg-alt: #efe7d4;
-  --vp-c-bg-elv: #fffdf8;
-  --vp-c-bg-elv-mute: #f3ecdd;
-  --vp-c-text-1: #33302a;
-  --vp-c-text-2: rgba(51, 48, 42, 0.75);
-  --vp-c-text-3: rgba(51, 48, 42, 0.55);
-  --vp-c-divider: #e2d9c6;
-  --vp-c-border: #c9bda4;
-}
-html[data-theme="paper"].dark {
-  --vp-c-bg: #1c1a16;
-  --vp-c-bg-soft: #242019;
-  --vp-c-bg-alt: #151310;
-  --vp-c-bg-elv: #262219;
-  --vp-c-bg-elv-mute: #242019;
-  --vp-c-text-1: rgba(245, 240, 230, 0.86);
-  --vp-c-text-2: rgba(235, 225, 205, 0.6);
-  --vp-c-text-3: rgba(235, 225, 205, 0.38);
-  --vp-c-divider: #332e24;
-  --vp-c-border: #4a4234;
-}
-
-/* ============================================================
-   主题 4：极夜霓虹（深紫黑 + 紫/粉/青霓虹）
-   ============================================================ */
-html[data-theme="neon"] {
-  --vp-c-brand-1: #7c3aed;
-  --vp-c-brand-2: #8b5cf6;
-  --vp-c-brand-3: #6d28d9;
-  --vp-c-brand-soft: rgba(124, 58, 237, 0.16);
-  --vp-c-brand-grad-2: #ec4899;
-}
-html[data-theme="neon"]:not(.dark) {
-  --vp-c-bg: #f8f6ff;
-  --vp-c-bg-soft: #f0ecff;
-  --vp-c-bg-alt: #eae4ff;
-  --vp-c-bg-elv: #fdfcff;
-  --vp-c-bg-elv-mute: #f0ecff;
-  --vp-c-text-1: #2e2a45;
-  --vp-c-text-2: rgba(46, 42, 69, 0.75);
-  --vp-c-text-3: rgba(46, 42, 69, 0.55);
-  --vp-c-divider: #ddd6f2;
-  --vp-c-border: #beb4e0;
-}
-html[data-theme="neon"].dark {
-  --vp-c-bg: #100d1a;
-  --vp-c-bg-soft: #171228;
-  --vp-c-bg-alt: #0c0a14;
-  --vp-c-bg-elv: #1a1430;
-  --vp-c-bg-elv-mute: #171228;
-  --vp-c-text-1: rgba(245, 240, 255, 0.88);
-  --vp-c-text-2: rgba(215, 205, 240, 0.6);
-  --vp-c-text-3: rgba(215, 205, 240, 0.4);
-  --vp-c-divider: #2a2340;
-  --vp-c-border: #3d3260;
-}
-
-/* ---------- 主题氛围（深色光晕，仅 geek / neon） ---------- */
-html[data-theme="geek"].dark body {
-  background-image: radial-gradient(
-    1200px 600px at 80% -10%,
-    rgba(0, 230, 138, 0.07),
-    transparent 60%
-  );
-}
-html[data-theme="neon"].dark body {
-  background-image: radial-gradient(
-      1100px 550px at 85% -10%,
-      rgba(168, 85, 247, 0.09),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 500px at -10% 110%,
-      rgba(236, 72, 153, 0.06),
-      transparent 60%
-    );
 }
 
 /* ---------- 首页 Hero 微调 ---------- */

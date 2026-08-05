@@ -3,7 +3,6 @@ import DefaultTheme from "vitepress/theme";
 import { onMounted } from "vue";
 import { useRouter } from "vitepress";
 import mediumZoom from "medium-zoom";
-import ThemeSwitcher from "./components/ThemeSwitcher.vue";
 
 const { Layout } = DefaultTheme;
 const router = useRouter();
@@ -21,5 +20,4 @@ router.onAfterRouteChanged = () => setupMediumZoom();
 
 <template>
   <Layout />
-  <ThemeSwitcher />
 </template>
