@@ -32,6 +32,8 @@ USERNAME = os.environ.get("USERNAME", "SunsetRNE")
 TOKEN = os.environ.get("SYNC_TOKEN", "")
 REPOS_FILTER = [x.strip() for x in os.environ.get("REPOS", "").split(",") if x.strip()]
 SKIP_REPOS = [x.strip() for x in os.environ.get("SKIP_REPOS", "").split(",") if x.strip()]
+# 按分类跳过同步（如编译依赖类仓库无需跟上游），逗号分隔
+SKIP_CATEGORIES = [x.strip() for x in os.environ.get("SKIP_CATEGORIES", "").split(",") if x.strip()]
 PARALLEL = int(os.environ.get("PARALLEL", "8"))
 API = "https://api.github.com"
 WORKSPACE = os.getcwd()
@@ -175,11 +177,33 @@ def fallback_sync(name, upstream, branch):
             shutil.rmtree(repo_dir, ignore_errors=True)
 
 
+def classify(name):
+    """按仓库名推断"存在的意义"分类（与前端 GitHubForks.vue 规则一致）"""
+    n = name.lower()
+    if any(k in n for k in ("toolchain", "ccache", "manifest", "anykernel")):
+        return "编译依赖"
+    if any(k in n for k in ("clash", "mihomo")) or n == "box":
+        return "代理网络"
+    if any(k in n for k in ("gpt", "codex", "llm", "mcp", "operit", "open-", "headroom", "agent")):
+        return "AI工具"
+    if any(k in n for k in ("installer", "zygisk", "webui", "tricky", "integrity", "hma", "lyric", "faker", "telegram")):
+        return "模块/框架"
+    # CI/产物 优先于 Root（ReSukiSU_CI 是产物仓库）
+    if any(k in n for k in ("ci", "action")):
+        return "CI/产物"
+    if any(k in n for k in ("kernelsu", "ksu", "susfs", "magisk", "patch", "kpm", "sukisu")):
+        return "Root方案"
+    if "kernel" in n:
+        return "内核源码"
+    return "工具/脚本"
+
+
 def process_fork(fork):
     """处理单个 fork：纯 API 同步，不 clone"""
     name = fork["name"]
     item = {
         "name": name,
+        "category": classify(name),
         "upstream": None,
         "status": "pending",
         "note": "",
@@ -187,6 +211,13 @@ def process_fork(fork):
         "upstream_pushed_at": "",
     }
     t0 = time.time()
+
+    # 分类跳过：该分类无需跟上游（如编译依赖），不调 API，直接标记
+    if item["category"] in SKIP_CATEGORIES:
+        item["status"] = "skipped"
+        item["note"] = f"{item['category']}，无需跟上游"
+        item["duration_s"] = round(time.time() - t0)
+        return item
 
     # 1. 仓库详情：拿默认分支 + 上游
     status, detail = api("GET", f"/repos/{USERNAME}/{name}")
@@ -291,6 +322,8 @@ def main():
                   f"({item.get('duration_s', 0)}s) {item['note']}")
 
     # 写报告
+    # 报告计数（skipped 计入"无需同步"）
+    skipped = sum(1 for r in results if r["status"] == "skipped")
     report = {
         "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "total": len(results),
@@ -298,6 +331,7 @@ def main():
         "conflict": sum(1 for r in results if r["status"] == "conflict"),
         "error": sum(1 for r in results if r["status"] == "error"),
         "orphan": sum(1 for r in results if r["status"] == "orphan"),
+        "skipped": skipped,
         "not_fork": sum(1 for r in results if r["status"] == "not_fork"),
         "forks": results,
     }

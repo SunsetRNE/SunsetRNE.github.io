@@ -44,6 +44,8 @@ jobs:
           USERNAME: SunsetRNE
           REPOS: ${{ inputs.repos || '' }}
           SKIP_REPOS: ${{ inputs.skip_repos || '' }}
+          # 编译依赖类仓库（toolchain/ccache/manifest/AnyKernel）因编译而存在，无需跟上游
+          SKIP_CATEGORIES: "编译依赖"
         run: python3 .github/scripts/sync_forks.py
 
       - name: Commit Report

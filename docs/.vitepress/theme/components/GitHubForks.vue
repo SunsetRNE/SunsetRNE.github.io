@@ -6,9 +6,49 @@ const report = ref(null);
 const loading = ref(true);
 const error = ref("");
 const filter = ref("all");
+const catFilter = ref("all"); // 分类筛选
 const sortBy = ref("name"); // name | upstream
 const search = ref("");
 const history = ref([]);
+
+// ---------- 仓库分类：按"存在的意义"标注 ----------
+const CATEGORIES = [
+  { value: "all", label: "全部分类" },
+  { value: "Root方案", label: "Root方案" },
+  { value: "内核源码", label: "内核源码" },
+  { value: "CI/产物", label: "CI/产物" },
+  { value: "模块/框架", label: "模块/框架" },
+  { value: "编译依赖", label: "编译依赖" },
+  { value: "代理网络", label: "代理网络" },
+  { value: "AI工具", label: "AI工具" },
+  { value: "工具/脚本", label: "工具/脚本" },
+];
+const CAT_COLOR = {
+  "Root方案": "#7c3aed",
+  "内核源码": "#d97706",
+  "CI/产物": "#0891b2",
+  "模块/框架": "#0d9488",
+  "编译依赖": "#64748b",
+  "代理网络": "#db2777",
+  "AI工具": "#2563eb",
+  "工具/脚本": "#4b5563",
+};
+function classify(name) {
+  const n = name.toLowerCase();
+  if (n.includes("toolchain") || n.includes("ccache") || n.includes("manifest") || n.includes("anykernel"))
+    return "编译依赖";
+  if (n.includes("clash") || n.includes("mihomo") || n === "box") return "代理网络";
+  if (n.includes("gpt") || n.includes("codex") || n.includes("llm") || n.includes("mcp") || n.includes("operit") || n.includes("open-") || n.includes("headroom") || n.includes("agent"))
+    return "AI工具";
+  if (n.includes("installer") || n.includes("zygisk") || n.includes("webui") || n.includes("tricky") || n.includes("integrity") || n.includes("hma") || n.includes("lyric") || n.includes("faker") || n.includes("telegram"))
+    return "模块/框架";
+  // CI/产物 优先于 Root（ReSukiSU_CI 是产物仓库）
+  if (n.includes("ci") || n.includes("action")) return "CI/产物";
+  if (n.includes("kernelsu") || n.includes("ksu") || n.includes("susfs") || n.includes("magisk") || n.includes("patch") || n.includes("kpm") || n.includes("sukisu"))
+    return "Root方案";
+  if (n.includes("kernel")) return "内核源码";
+  return "工具/脚本";
+}
 
 onMounted(async () => {
   try {
@@ -35,6 +75,10 @@ const filtered = () => {
   const forks = report.value.forks.filter((f) => f.status !== "not_fork");
   let list = forks;
   if (filter.value !== "all") list = list.filter((f) => f.status === filter.value);
+  // 分类筛选：优先数据层 category，缺失时前端规则兜底
+  if (catFilter.value !== "all") {
+    list = list.filter((f) => (f.category || classify(f.name)) === catFilter.value);
+  }
   // 搜索：名称或上游包含关键字
   const kw = search.value.trim().toLowerCase();
   if (kw) {
@@ -55,6 +99,9 @@ const filtered = () => {
   return list;
 };
 
+const catOf = (f) => f.category || classify(f.name);
+const catColor = (f) => CAT_COLOR[catOf(f)] || "#4b5563";
+
 const ownRepos = () => {
   if (!report.value) return [];
   return report.value.forks.filter((f) => f.status === "not_fork");
@@ -66,6 +113,7 @@ const badge = (status) => ({
   error: { cls: "err", text: "❌ 失败" },
   orphan: { cls: "muted", text: "🕳️ 上游缺失" },
   not_fork: { cls: "muted", text: "🏠 自建仓库" },
+  skipped: { cls: "muted", text: "⏭️ 无需同步" },
   pending: { cls: "muted", text: "⏳ 待同步" },
 }[status] || { cls: "muted", text: status });
 
@@ -126,11 +174,12 @@ const trendLabel = (iso) => {
 
     <template v-else>
       <div class="summary">
-        <span class="sum-item"><b>{{ report.forks.filter(f => f.status !== 'not_fork').length }}</b> 个可同步 fork</span>
+        <span class="sum-item"><b>{{ report.forks.filter(f => f.status !== 'not_fork' && f.status !== 'skipped').length }}</b> 个待同步 fork</span>
         <span class="sum-item ok"><b>{{ report.synced }}</b> 已同步</span>
         <span class="sum-item warn"><b>{{ report.conflict }}</b> 冲突</span>
         <span class="sum-item err"><b>{{ report.error }}</b> 失败</span>
         <span class="sum-item muted"><b>{{ report.orphan || 0 }}</b> 上游缺失</span>
+        <span class="sum-item muted"><b>{{ report.skipped || 0 }}</b> 无需同步</span>
         <span class="updated">🕐 报告更新于 {{ fmtTime(report.updated_at) }}</span>
       </div>
 
@@ -154,6 +203,18 @@ const trendLabel = (iso) => {
           <button :class="['chip', { active: sortBy === 'name' }]" @click="sortBy = 'name'">名称</button>
           <button :class="['chip', { active: sortBy === 'upstream' }]" @click="sortBy = 'upstream'">上游活跃度</button>
         </span>
+      </div>
+
+      <!-- 分类筛选：按仓库"存在的意义" -->
+      <div class="cat-filters">
+        <button
+          v-for="c in CATEGORIES"
+          :key="c.value"
+          :class="['chip', 'cat-chip', { active: catFilter === c.value }]"
+          @click="catFilter = c.value"
+        >
+          {{ c.label }}
+        </button>
       </div>
 
       <!-- 同步历史趋势（近 14 次） -->
@@ -181,8 +242,10 @@ const trendLabel = (iso) => {
           <thead>
             <tr>
               <th>我的 fork</th>
+              <th>分类</th>
               <th>上游仓库</th>
               <th>状态</th>
+              <th>更新时间</th>
             </tr>
           </thead>
           <tbody>
@@ -195,7 +258,14 @@ const trendLabel = (iso) => {
                 <a :href="`https://github.com/SunsetRNE/${f.name}`" target="_blank">
                   {{ f.name }}
                 </a>
-                <div class="sub">fork 更新 {{ fmtAgo(f.fork_pushed_at) }}</div>
+              </td>
+              <td>
+                <span
+                  class="cat-badge"
+                  :style="{ color: catColor(f), background: catColor(f) + '22' }"
+                >
+                  {{ catOf(f) }}
+                </span>
               </td>
               <td>
                 <a v-if="f.upstream" :href="`https://github.com/${f.upstream}`" target="_blank">
@@ -211,6 +281,7 @@ const trendLabel = (iso) => {
                   {{ behindInfo(f).text }}
                 </div>
               </td>
+              <td class="time">{{ fmtAgo(f.fork_pushed_at) }}</td>
             </tr>
           </tbody>
         </table>
@@ -295,6 +366,26 @@ const trendLabel = (iso) => {
   margin-bottom: 14px;
   flex-wrap: wrap;
   align-items: center;
+}
+/* 分类筛选行 */
+.cat-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.cat-chip {
+  font-size: 12.5px;
+  padding: 3px 12px;
+}
+.cat-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 .sort-group {
   margin-left: auto;
