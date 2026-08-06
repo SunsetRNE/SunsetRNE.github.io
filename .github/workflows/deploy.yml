@@ -52,15 +52,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
-          echo '=== 最近 10 条 pages deployments ==='
-          curl -s -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages/deployments?per_page=10" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(x.get("id"), "|", x.get("status"), "|", x.get("created_at")) for x in d] if isinstance(d,list) else print(d)'
-          echo '=== 当前 Pages 配置 ==='
-          curl -s -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))'
+          {
+            echo '=== 最近 10 条 pages deployments ==='
+            curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages/deployments?per_page=10" \
+              | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(x.get("id"), "|", x.get("status"), "|", x.get("created_at")) for x in d] if isinstance(d,list) else print(d)'
+            echo '=== 当前 Pages 配置 ==='
+            curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+              | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))'
+          } > /tmp/deploy-diag.txt 2>&1
+          cat /tmp/deploy-diag.txt
           exit 0
+      - name: Upload deploy diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-diag
+          path: /tmp/deploy-diag.txt
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
