@@ -14,8 +14,8 @@
 
 <div class="project-card">
 
-### [oppo_oplus_realme](https://github.com/SunsetRNE/oppo_oplus_realme)
-<div class="desc">欧加真内核统一构建平台：脱离上游、更好的三合一平台。按芯片分仓库维护——sm8650（★6）、sm8750（★2）、sm8850，用完全自动化的流水线替代手动编译。</div>
+### [oppo_oplus_realme](/projects/oppo_oplus_realme/)
+<div class="desc">欧加真内核统一构建平台：脱离上游、更好的三合一平台。按芯片分仓库维护——sm8650（★6）、sm8750（★2）、sm8850，用完全自动化的流水线替代手动编译。[阅读拆解 →](/projects/oppo_oplus_realme/)</div>
 <div class="tags"><span class="tag">Shell</span><span class="tag">Kernel</span><span class="tag">CI</span></div>
 
 </div>
