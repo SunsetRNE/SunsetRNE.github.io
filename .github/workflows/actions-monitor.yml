@@ -1,19 +1,23 @@
 # Actions 监控快照
-# 每 30 分钟扫描一次账号下所有公开仓库的 Actions 运行状态，
-# 生成快照 docs/public/actions-runs.json 供监控页（/actions）读取。
+# 每 5 分钟扫描一次账号下所有公开仓库的 Actions 运行状态（与监控页 5 分钟
+# 自动刷新对齐），生成快照 docs/public/actions-runs.json 供监控页（/actions）读取。
 #
 # 只读 API + 有状态变化才提交：runs 状态无变化时脚本不写文件，
 # git diff 为空 → 跳过 commit/push/deploy，不污染历史也不触发无谓部署。
-# API 用量：约 56 次/轮 × 48 轮/天 ≈ 2700 次/天（SYNC_TOKEN 限额 5000/小时）
+# 高频轮不产生 commit 噪音（无变化即静默）；API 用量约 56 次/轮 × 288 轮/天
+# ≈ 1.6 万次/天，仍远低于 SYNC_TOKEN 限额（5000 次/小时 ≈ 12 万次/天）。
 #
 # ⚠️ 依赖 SYNC_TOKEN（与 sync-forks 同一个 secret）：
 #   GitHub → Settings → Developer settings → Personal access tokens
+#
+# ⚠️ GitHub schedule 不保证准时/必跑（官方文档明示）：偶尔跳一班属正常，
+#   下一班自动补上；时间流历史只在状态变化时追加，错过一班不影响准确性。
 
 name: Actions Monitor
 
 on:
   schedule:
-    - cron: "*/30 * * * *" # 每 30 分钟（UTC 偶数分，北京时间 偶数分+8）
+    - cron: "*/5 * * * *" # 每 5 分钟（UTC/北京时间一致：分秒级对齐）
   workflow_dispatch: # 支持手动触发
 
 permissions:
