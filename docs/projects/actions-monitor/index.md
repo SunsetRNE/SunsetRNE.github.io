@@ -1,6 +1,11 @@
 ---
 title: Actions 监控
 description: 全账号 GitHub Actions 运行状态挂屏监控
+navbar: false
+sidebar: false
+aside: false
+footer: false
+lastUpdated: false
 ---
 
 # ⚡ Actions 监控
