@@ -16,13 +16,12 @@ import { tabsMarkdownPlugin } from "vitepress-plugin-tabs";
 const USERNAME = "SunsetRNE";
 const SITE = `https://${USERNAME}.github.io`;
 
-// 404 兜底跳转表（构建时从 projects.json 读取 + 别名，内联进 404.html）
-// 每条 { s: slug, t: 跳转目标 }，slug 大小写不敏感
-const PROJECT_REDIRECTS = JSON.parse(
+// 404 兜底跳转用的项目名列表（构建时从 projects.json 读取，内联进 404.html）
+// ⚠️ 注意：404.html 是全站通用 404 页，会被编译系统的下载请求间接命中（负缓存），
+// 只做"项目名 → /projects/项目名/"的基础跳转，别名/习惯入口用 public/ 静态跳转页，勿在此加
+const PROJECT_NAMES = JSON.parse(
   fs.readFileSync(new URL("../public/projects.json", import.meta.url), "utf-8")
-).projects.map((p) => ({ s: p.name, t: `/projects/${p.name}/` }));
-// 根级别名：旧路径/习惯入口 → 实际项目页（如 /actions → 监控页）
-PROJECT_REDIRECTS.push({ s: "actions", t: "/projects/actions-monitor/" });
+).projects.map((p) => p.name);
 
 export default withMermaid(defineConfig({
   lang: "zh-CN",
@@ -163,12 +162,12 @@ export default withMermaid(defineConfig({
     },
   },
 
-  // ---------- 404 兜底跳转：/slug → 跳转表匹配（项目页/别名） ----------
-  // 跳转表在构建时内联进 404.html（同步判断，零异步，不会因页面早期加载中断而失效）
+  // ---------- 404 兜底跳转：/项目名 → /projects/项目名/ ----------
+  // 项目列表在构建时内联进 404.html（同步判断，零异步，不会因页面早期加载中断而失效）
   transformHtml(code, id) {
     if (id.endsWith("404.html")) {
-      const table = JSON.stringify(PROJECT_REDIRECTS);
-      const script = `<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;var l=${table};for(var i=0;i<l.length;i++){if(l[i].s.toLowerCase()===s.toLowerCase()){location.replace(l[i].t);return}}})();</script>`;
+      const names = JSON.stringify(PROJECT_NAMES);
+      const script = `<script>(function(){var s=decodeURIComponent(location.pathname.replace(/^\\//,'')).split('/')[0];if(!s)return;var l=${names};for(var i=0;i<l.length;i++){if(l[i].toLowerCase()===s.toLowerCase()){location.replace('/projects/'+encodeURIComponent(l[i])+'/');return}}})();</script>`;
       return code.replace("</body>", script + "</body>");
     }
   },
