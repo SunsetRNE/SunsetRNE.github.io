@@ -1,0 +1,32 @@
+# 一次性工具：主站 Pages Source 切换到 gh-pages 分支（分支发布模式）
+# 手动触发一次即可；成功后与 deploy.yml 一起删除
+name: Switch Main Pages to Branch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Switch Pages source to gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          echo '=== 当前 Pages 配置 ==='
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))'
+          echo
+          echo '=== 切换 source -> gh-pages / (root) ==='
+          curl -s -X PUT -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+            -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
+          echo
+          echo '=== 切换后 ==='
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))'

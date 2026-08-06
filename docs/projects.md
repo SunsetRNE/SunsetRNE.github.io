@@ -54,9 +54,9 @@
 
 <div class="project-card">
 
-### [Actions 监控](/projects/actions-monitor/)
-<div class="desc">全账号 GitHub Actions 运行状态挂屏监控面板：55 个公开仓库状态网格、失败置顶红框、5 分钟自动刷新。由 Actions Monitor workflow 每 30 分钟扫描生成快照。</div>
-<div class="tags"><span class="tag">GitHub Actions</span><span class="tag">监控</span><span class="tag">VitePress</span></div>
+### [Actions 监控](https://sunsetrne.github.io/Actions/)
+<div class="desc">全账号 GitHub Actions 运行状态挂屏监控面板：55 个公开仓库状态网格、失败置顶红框、自适应刷新（运行中 60s / 静止 5min）。独立站点部署，数据走 actions-data 独立仓库，不触发主站编译。</div>
+<div class="tags"><span class="tag">GitHub Actions</span><span class="tag">监控</span><span class="tag">独立站点</span></div>
 
 </div>
 

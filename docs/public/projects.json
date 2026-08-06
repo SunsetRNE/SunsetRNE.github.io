@@ -35,8 +35,8 @@
     {
       "name": "actions-monitor",
       "title": "Actions 监控",
-      "desc": "全账号 GitHub Actions 运行状态挂屏监控面板",
-      "repo": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/workflows/actions-monitor.yml"
+      "desc": "全账号 GitHub Actions 运行状态挂屏监控面板（独立站点）",
+      "repo": "https://sunsetrne.github.io/Actions/"
     }
   ]
 }

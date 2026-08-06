@@ -1,5 +1,7 @@
-# 自动构建并部署到 GitHub Pages
-# 参考 ReSukiSU.github.io 的 main.yml 精简而来
+# 自动构建并部署到 GitHub Pages（分支模式）
+# 2026-08-06 切换：actions/deploy-pages 的 deployment API 通道连续 5 次卡死
+# （deployment_in_progress 10 分钟超时），改为 gh-pages 分支发布——
+# 与 actions-data 同通道（push 后 1-2 分钟生效，已验证可靠）
 name: Deploy Pages
 
 on:
@@ -14,9 +16,7 @@ on:
       - .github/workflows/deploy.yml
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -36,40 +36,10 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run --bun docs:build
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v5
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./docs/.vitepress/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Diagnose Pages Deployments (temporary)
-        env:
-          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
-        run: |
-          {
-            echo '=== 最近 10 条 pages deployments ==='
-            curl -s -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages/deployments?per_page=10" \
-              | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(x.get("id"), "|", x.get("status"), "|", x.get("created_at")) for x in d] if isinstance(d,list) else print(d)'
-            echo '=== 当前 Pages 配置 ==='
-            curl -s -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
-              | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))'
-          } > /tmp/deploy-diag.txt 2>&1
-          cat /tmp/deploy-diag.txt
-          exit 0
-      - name: Upload deploy diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deploy-diag
-          path: /tmp/deploy-diag.txt
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vitepress/dist
+          publish_branch: gh-pages
+          force_orphan: true

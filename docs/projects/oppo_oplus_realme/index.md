@@ -160,4 +160,4 @@ ccache 用**三级缓存**：`actions/cache` → 公共 release → 上传覆盖
 
 ---
 
-**仓库**：[github.com/SunsetRNE/oppo_oplus_realme](https://github.com/SunsetRNE/oppo_oplus_realme) · **监控**：[Actions 监控](/projects/actions-monitor/)
+**仓库**：[github.com/SunsetRNE/oppo_oplus_realme](https://github.com/SunsetRNE/oppo_oplus_realme) · **监控**：[Actions 监控](https://sunsetrne.github.io/Actions/)
