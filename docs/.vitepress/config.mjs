@@ -105,7 +105,6 @@ export default withMermaid(defineConfig({
       { text: "项目", link: "/projects" },
       { text: "上游监控", link: "/upstream" },
       { text: "工具箱", link: "/tools" },
-      { text: "Actions", link: "/actions" },
       { text: "博客", link: "/blog" },
     ],
 

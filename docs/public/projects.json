@@ -31,6 +31,12 @@
       "title": "InstallerX_Zsunset",
       "desc": "基于 InstallerX-Revived 的改造版",
       "repo": "https://github.com/SunsetRNE/InstallerX_Zsunset"
+    },
+    {
+      "name": "actions-monitor",
+      "title": "Actions 监控",
+      "desc": "全账号 GitHub Actions 运行状态挂屏监控面板",
+      "repo": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/workflows/actions-monitor.yml"
     }
   ]
 }

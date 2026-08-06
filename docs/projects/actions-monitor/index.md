@@ -5,6 +5,8 @@ description: 全账号 GitHub Actions 运行状态挂屏监控
 
 # ⚡ Actions 监控
 
+全账号 GitHub Actions 运行状态挂屏监控面板：55 个公开仓库的状态网格、失败置顶、5 分钟自动刷新。专为平板挂屏设计，扫一眼就知道哪些流水线挂了。
+
 <ActionsMonitor />
 
 ::: tip 说明
