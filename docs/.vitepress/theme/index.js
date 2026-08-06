@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import GitHubRepos from "./components/GitHubRepos.vue";
 import GitHubForks from "./components/GitHubForks.vue";
 import BlogArchive from "./components/BlogArchive.vue";
+import ActionsMonitor from "./components/ActionsMonitor.vue";
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import { NolebaseEnhancedReadabilitiesPlugin } from "@nolebase/vitepress-plugin-enhanced-readabilities/client";
@@ -25,5 +26,6 @@ export default {
     app.component("GitHubRepos", GitHubRepos);
     app.component("GitHubForks", GitHubForks);
     app.component("BlogArchive", BlogArchive);
+    app.component("ActionsMonitor", ActionsMonitor);
   },
 };
