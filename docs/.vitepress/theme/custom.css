@@ -86,7 +86,6 @@ html.dark {
   color: var(--vp-c-brand-1) !important;
   border-radius: 12px !important;
 }
-
 /* ---------- 项目页卡片 ---------- */
 .project-card {
   border: 1px solid var(--vp-c-divider);
@@ -133,4 +132,11 @@ html.dark {
   border-radius: 999px;
   background: var(--vp-c-brand-soft);
   color: var(--vp-c-brand-1);
+}
+
+/* ---------- 监控页（挂屏形态）：隐藏本地导航（回到顶部占位） ----------
+   VPLocalNav 在"无目录 + 无侧边栏"时转为 fixed 形态，滚动后出现"回到顶部"，
+   frontmatter 管不到它，按 pageClass 只对监控页隐藏，其他页面保留。 */
+.monitor-page .VPLocalNav {
+  display: none !important;
 }

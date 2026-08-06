@@ -6,6 +6,7 @@ sidebar: false
 aside: false
 footer: false
 lastUpdated: false
+pageClass: monitor-page
 ---
 
 # ⚡ Actions 监控
