@@ -1,14 +1,19 @@
-# Actions 监控快照
-# 每 5 分钟扫描一次账号下所有公开仓库的 Actions 运行状态（与监控页 5 分钟
-# 自动刷新对齐），生成快照 docs/public/actions-runs.json 供监控页（/actions）读取。
+# Actions 监控快照（数据独立仓库版）
+# ---------------------------------------------------------------
+# 架构：扫描结果写入独立数据仓库（SunsetRNE/actions-data），不再进主站，
+#       主站编译彻底解耦——监控怎么高频都不会触发全站 VitePress 编译。
 #
-# 只读 API + 有状态变化才提交：runs 状态无变化时脚本不写文件，
-# git diff 为空 → 跳过 commit/push/deploy，不污染历史也不触发无谓部署。
-# 高频轮不产生 commit 噪音（无变化即静默）；API 用量约 56 次/轮 × 288 轮/天
-# ≈ 1.6 万次/天，仍远低于 SYNC_TOKEN 限额（5000 次/小时 ≈ 12 万次/天）。
+# 频率：schedule 每 5 分钟启动一个 job；job 内部 60 秒循环扫描——
+#       - 有 running 流水线 → 每 60 秒连扫（最多 4 轮，约 4 分钟）
+#       - 无 running → 立即退出，等下一班（5 分钟）
+#       实现"运行中 60 秒高频 / 静止 5 分钟"的动态判定频率。
+#
+# 数据链路：扫描 → 有变化写 JSON → commit + push 到 actions-data
+#           → 该仓库 Pages（branch 模式 + .nojekyll，无构建）自动上线 ~1 分钟
+#           → 监控页 fetch https://sunsetrne.github.io/actions-data/actions-runs.json
 #
 # ⚠️ 依赖 SYNC_TOKEN（与 sync-forks 同一个 secret）：
-#   GitHub → Settings → Developer settings → Personal access tokens
+#   classic PAT：默认全仓库写权限 ✓；fine-grained：需给 actions-data 授权
 #
 # ⚠️ GitHub schedule 不保证准时/必跑（官方文档明示）：偶尔跳一班属正常，
 #   下一班自动补上；时间流历史只在状态变化时追加，错过一班不影响准确性。
@@ -17,7 +22,7 @@ name: Actions Monitor
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # 每 5 分钟（UTC/北京时间一致：分秒级对齐）
+    - cron: "*/5 * * * *" # 每 5 分钟启动 job（内部再 60 秒循环）
   workflow_dispatch: # 支持手动触发
 
 permissions:
@@ -25,7 +30,7 @@ permissions:
 
 concurrency:
   group: actions-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true # 新旧班次重叠时取消旧的（数据只认最新）
 
 jobs:
   monitor:
@@ -35,33 +40,33 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Scan Actions Runs
+      - name: Clone data repo
+        run: |
+          git clone https://github.com/SunsetRNE/actions-data.git data-repo
+          git -C data-repo config user.name "SunsetRNE"
+          git -C data-repo config user.email "z100o190zgxc@163.com"
+
+      - name: Scan Actions Runs (60s loop)
         env:
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
           USERNAME: SunsetRNE
-        run: python3 .github/scripts/actions_monitor.py
+        run: python3 .github/scripts/actions_monitor.py \
+               --data-dir data-repo \
+               --loop-interval 60 \
+               --max-loops 4
 
-      - name: Commit Snapshot (only on change)
+      - name: Commit & Push Data (only on change)
         env:
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
-          git config user.name "SunsetRNE"
-          git config user.email "z100o190zgxc@163.com"
-          git add docs/public/actions-runs.json
-          if git diff --cached --quiet; then
+          cd data-repo
+          if git diff --cached --quiet && git diff --quiet; then
             echo "📭 runs 状态无变化，跳过提交"
             exit 0
           fi
+          git add -A
           git commit -m "chore: update actions monitor snapshot"
-          # ⚠️ 必须清除 extraheader：actions/checkout 注入的 GITHUB_TOKEN
-          # 会覆盖 URL 里的 SYNC_TOKEN，导致 push 用 GITHUB_TOKEN 认证，
-          # 而 GITHUB_TOKEN 的 push 不会触发其他 workflow（递归防护）
+          # 清除 extraheader，用 SYNC_TOKEN 推数据仓库（GITHUB_TOKEN 推送不触发 Pages 部署）
           git -c http.https://github.com/.extraheader= push \
-            "https://x-access-token:${SYNC_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
-          # 双保险：显式触发 Deploy Pages（workflow_dispatch 事件 100% 生效）
-          # ⚠️ 用 GITHUB_TOKEN：fine-grained token 无 Actions 权限会 403
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ github.token }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/dispatches" \
-            -d '{"ref":"main"}'
+            "https://x-access-token:${SYNC_TOKEN}@github.com/SunsetRNE/actions-data.git" HEAD:main
+          echo "✅ 数据已推送 actions-data（Pages 自动部署中）"

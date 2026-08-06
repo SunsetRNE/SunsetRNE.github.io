@@ -3,22 +3,27 @@
 Actions 监控快照生成脚本（纯 API 版）
 =====================================
 扫描账号下所有**公开**仓库的最近 Actions runs，生成快照 JSON：
-  docs/public/actions-runs.json
+  <data-dir>/actions-runs.json   （默认 docs/public/，workflow 传数据仓库目录）
 
 设计要点：
 - 每仓库只取最近 2 条 runs（per_page=2），55 仓库 ≈ 110 条 ≈ 22KB
-- API 用量：1 次列表 + N 次 runs ≈ 56 次/轮；每 30 分钟一轮 ≈ 112 次/小时
-  （SYNC_TOKEN 限额 5000/小时无压力；匿名 60/小时只够单次手动跑）
 - 只保留稳定字段（不含 run 的 updated_at），状态无变化时旧快照与新数据
   完全一致 → 不写文件，由 workflow 的 git diff 判断跳过 commit
 - 每仓库带 category 分类（规则与 sync_forks.py 一致），前端按分类分组
 - 时间流记忆：对比新旧快照的仓库状态，变化追加到 actions-history.json
-  （最近 300 条），供监控页时间线展示；状态无变化时历史文件也不动
+  （最近 300 条）；状态无变化时历史文件也不动
+- 异步监控（--loop 模式）：workflow 每 5 分钟启动一个 job，job 内部循环——
+  有 running 流水线时按 --loop-interval（默认 60s）连扫，无 running 立即退出，
+  实现"运行中 60 秒高频 / 静止 5 分钟"的动态判定频率
 
 环境变量：
   SYNC_TOKEN : GitHub token（可选，匿名也能跑但限额低）
   USERNAME   : GitHub 用户名（默认 SunsetRNE）
   PARALLEL   : 并行数（默认 8）
+参数：
+  --data-dir DIR      输出目录（默认 docs/public）
+  --loop-interval SEC 循环间隔秒数（默认 0 = 单轮）
+  --max-loops N       循环最多 N 轮（默认 1）
 """
 import concurrent.futures as cf
 import json
@@ -180,16 +185,16 @@ def scan_repo(name):
             "note": ""}
 
 
-def main():
-    if not TOKEN:
-        print("⚠️ 未设置 SYNC_TOKEN（匿名模式，限 60 次/小时，只够单次手动跑）")
-    print(f"🔍 扫描 {USERNAME} 的公开仓库 Actions 状态（并行 {PARALLEL}）...")
+def scan_once():
+    """执行一轮完整扫描：拉仓库列表 → 并行扫 runs → 生成快照。
 
+    有变化才写快照 + 时间流历史；返回 summary（供 loop 判断是否继续高频）。
+    """
     # 1. 仓库列表（type=owner 拿全部 own 仓库；过滤私有，监控页是公开页面）
     status, repos = api("GET", f"/users/{USERNAME}/repos?per_page=100&type=owner")
     if status != 200:
         print(f"❌ 获取仓库列表失败 (HTTP {status})")
-        sys.exit(1)
+        return None
     public = [r for r in repos if not r.get("private")]
     print(f"   公开仓库 {len(public)} 个（私有 {len(repos) - len(public)} 个已跳过）")
 
@@ -249,7 +254,7 @@ def main():
 
     if not changed:
         print("📭 runs 状态无变化，跳过写入")
-        return
+        return summary
 
     os.makedirs(os.path.dirname(SNAPSHOT), exist_ok=True)
     with open(SNAPSHOT, "w", encoding="utf-8") as f:
@@ -258,6 +263,7 @@ def main():
 
     # 时间流记忆：状态变化追加进历史（有事件才写，与快照同 commit）
     update_history(new_data["repos"], old_repos, new_data["updated_at"])
+
     print(f"📊 汇总: 共 {summary['total']} | ▶️ 运行中 {summary['running']} | "
           f"✅ 正常 {summary['ok']} | ❌ 失败 {summary['failed']} | "
           f"⛔ 无 runs {summary['no_runs']}")
@@ -268,6 +274,52 @@ def main():
             if r0 and r0["status"] == "completed" and r0["conclusion"] not in OK_CONCLUSIONS:
                 print(f"   - {item['name']}: #{r0['run_number']} {r0['name']} "
                       f"→ {r0['conclusion']} {r0['html_url']}")
+    return summary
+
+
+def parse_args(argv):
+    data_dir = os.environ.get("DATA_DIR", "docs/public")
+    loop_interval = 0
+    max_loops = 1
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--data-dir" and i + 1 < len(argv):
+            data_dir = argv[i + 1]
+            i += 2
+        elif argv[i] == "--loop-interval" and i + 1 < len(argv):
+            loop_interval = int(argv[i + 1])
+            i += 2
+        elif argv[i] == "--max-loops" and i + 1 < len(argv):
+            max_loops = int(argv[i + 1])
+            i += 2
+        else:
+            i += 1
+    return data_dir, loop_interval, max_loops
+
+
+def main():
+    data_dir, loop_interval, max_loops = parse_args(sys.argv[1:])
+    global SNAPSHOT, HISTORY
+    SNAPSHOT = os.path.join(data_dir, "actions-runs.json")
+    HISTORY = os.path.join(data_dir, "actions-history.json")
+
+    if not TOKEN:
+        print("⚠️ 未设置 SYNC_TOKEN（匿名模式，限 60 次/小时，只够单次手动跑）")
+    print(f"🔍 扫描 {USERNAME} 的公开仓库 Actions 状态（并行 {PARALLEL}）"
+          f"→ 数据目录 {data_dir}")
+
+    for round_no in range(1, max_loops + 1):
+        if round_no > 1:
+            print(f"⏳ 检测到运行中的流水线，{loop_interval}s 后继续扫描（第 {round_no} 轮）...")
+            time.sleep(loop_interval)
+        print(f"—— 第 {round_no}/{max_loops} 轮 ——")
+        summary = scan_once()
+        if summary is None:
+            sys.exit(1)
+        if summary["running"] == 0:
+            print("✅ 无运行中的流水线，本轮结束（等下一班 5 分钟）")
+            break
+    print("🏁 扫描完成")
 
 
 if __name__ == "__main__":

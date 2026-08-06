@@ -1,7 +1,9 @@
 <script setup>
 // Actions 监控面板：平板挂屏用
-// 数据源：actions-monitor workflow 每 30 分钟扫描生成的 actions-runs.json
-// 特性：网格卡片（横屏 3~4 列）、大状态色块、失败置顶+红框、5 分钟自动刷新
+// 数据源：独立数据仓库 actions-data 的 Pages（actions-monitor workflow 扫描，
+// 有 running 时 60 秒高频 / 静止 5 分钟；页面自适应刷新间隔跟随）
+// 特性：分组折叠（失败/运行中展开，正常/无运行收起）、时间流记忆、
+//       网格卡片（横屏 3~4 列）、大状态色块、失败置顶+红框
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 
 const data = ref(null);
@@ -154,40 +156,62 @@ const HIST_META = {
   running: { icon: "⏳", color: "#2563eb" },
   no_runs: { icon: "⏸", color: "#94a3b8" },
 };
+
+// ---------- 自适应刷新：有 running 时 60 秒高频，静止恢复 5 分钟 ----------
+// 数据源：独立数据仓库 actions-data 的 Pages（无构建部署，~1 分钟生效）
+// 加时间戳绕过 Pages 边缘缓存（Fastly max-age=600）
+const DATA_URL = "https://sunsetrne.github.io/actions-data/actions-runs.json";
+const HISTORY_URL = "https://sunsetrne.github.io/actions-data/actions-history.json";
+const FALLBACK_URL = "/actions-runs.json"; // 主站旧静态快照兜底
+const FAST_MS = 60 * 1000; // 有流水线在跑：60 秒刷新
+const SLOW_MS = 5 * 60 * 1000; // 静止：5 分钟刷新
+let timer = null;
+
+async function fetchJson(url) {
+  const res = await fetch(`${url}?v=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function load() {
+  try {
+    data.value = await fetchJson(DATA_URL);
+    error.value = "";
+  } catch (e) {
+    // 数据仓库不可用 → 尝试主站旧静态快照兜底
+    try {
+      data.value = await fetchJson(FALLBACK_URL);
+      error.value = "";
+    } catch (e2) {
+      if (!data.value) error.value = "监控数据源不可用——数据仓库或快照尚未生成";
+    }
+  } finally {
+    loading.value = false;
+  }
+  // 自适应刷新间隔：有 running → 60s；静止 → 300s
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  const running = data.value && data.value.summary && data.value.summary.running;
+  const interval = running > 0 ? FAST_MS : SLOW_MS;
+  timer = setInterval(() => {
+    load();
+    loadHistory();
+  }, interval);
+}
 async function loadHistory() {
   try {
-    const res = await fetch("/actions-history.json", { cache: "no-store" });
-    if (!res.ok) return;
-    const arr = await res.json();
+    const arr = await fetchJson(HISTORY_URL);
     // 倒序取最近 8 条
     history.value = Array.isArray(arr) ? arr.slice(-8).reverse() : [];
   } catch (e) {
     // 历史文件还没生成时静默（不打扰挂屏）
   }
 }
-
-// ---------- 5 分钟自动刷新 ----------
-let timer = null;
-async function load() {
-  try {
-    const res = await fetch("/actions-runs.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data.value = await res.json();
-    error.value = "";
-  } catch (e) {
-    if (!data.value)
-      error.value = "暂无监控数据——Actions 监控还没跑过，或快照尚未生成";
-  } finally {
-    loading.value = false;
-  }
-}
 onMounted(() => {
   load();
   loadHistory();
-  timer = setInterval(() => {
-    load();
-    loadHistory();
-  }, 5 * 60 * 1000); // 每 5 分钟刷新一次
 });
 onBeforeUnmount(() => clearInterval(timer));
 </script>
