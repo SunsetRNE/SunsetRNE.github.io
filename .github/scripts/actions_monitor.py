@@ -12,6 +12,8 @@ Actions 监控快照生成脚本（纯 API 版）
 - 只保留稳定字段（不含 run 的 updated_at），状态无变化时旧快照与新数据
   完全一致 → 不写文件，由 workflow 的 git diff 判断跳过 commit
 - 每仓库带 category 分类（规则与 sync_forks.py 一致），前端按分类分组
+- 时间流记忆：对比新旧快照的仓库状态，变化追加到 actions-history.json
+  （最近 300 条），供监控页时间线展示；状态无变化时历史文件也不动
 
 环境变量：
   SYNC_TOKEN : GitHub token（可选，匿名也能跑但限额低）
@@ -32,9 +34,69 @@ TOKEN = os.environ.get("SYNC_TOKEN", "")
 PARALLEL = int(os.environ.get("PARALLEL", "8"))
 API = "https://api.github.com"
 SNAPSHOT = os.path.join("docs", "public", "actions-runs.json")
+HISTORY = os.path.join("docs", "public", "actions-history.json")
+HISTORY_MAX = 300  # 时间流最多保留 300 条事件
 
 # run 状态 → 前端语义（页面只用最近一条定卡片色）
 OK_CONCLUSIONS = {"success", "skipped", "neutral"}
+
+
+def st_of(item):
+    """仓库状态语义（与前端 ActionsMonitor.vue 的 stOf 一致）"""
+    runs = item.get("runs") or []
+    if not runs:
+        return "no_runs"
+    r0 = runs[0]
+    if r0.get("status") != "completed":
+        return "running"
+    return "ok" if r0.get("conclusion") in OK_CONCLUSIONS else "failed"
+
+
+def update_history(new_repos, old_repos, t):
+    """对比新旧状态，把变化追加进时间流历史；有事件才写文件。
+
+    只记录状态实质变化（no_runs/running/ok/failed 之间切换），
+    首次运行（无旧快照）不产生事件。返回是否有事件写入。
+    """
+    old_st = {r["name"]: st_of(r) for r in old_repos} if old_repos else {}
+    events = []
+    for item in new_repos:
+        name = item["name"]
+        to = st_of(item)
+        frm = old_st.get(name)
+        if not frm or frm == to:
+            continue
+        r0 = (item.get("runs") or [{}])[0]
+        events.append({
+            "t": t,
+            "repo": name,
+            "from": frm,
+            "to": to,
+            "run": r0.get("name", ""),
+            "run_number": r0.get("run_number"),
+            "conclusion": r0.get("conclusion", ""),
+        })
+    if not events:
+        return False
+
+    history = []
+    if os.path.exists(HISTORY):
+        try:
+            with open(HISTORY, encoding="utf-8") as f:
+                history = json.load(f)
+            if not isinstance(history, list):
+                history = []
+        except Exception:
+            history = []
+    history.extend(events)
+    history = history[-HISTORY_MAX:]
+    os.makedirs(os.path.dirname(HISTORY), exist_ok=True)
+    with open(HISTORY, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=1)
+    print(f"📜 时间流 +{len(events)} 条事件（共 {len(history)} 条）")
+    for e in events:
+        print(f"   {e['t']} {e['repo']}: {e['from']} → {e['to']}")
+    return True
 
 
 def api(method, path, timeout=30):
@@ -175,10 +237,12 @@ def main():
         "repos": results,
     }
     changed = True
+    old_repos = []
     if os.path.exists(SNAPSHOT):
         try:
             with open(SNAPSHOT, encoding="utf-8") as f:
                 old = json.load(f)
+            old_repos = old.get("repos", [])
             changed = old.get("repos") != new_data["repos"]
         except Exception:
             pass
@@ -191,6 +255,9 @@ def main():
     with open(SNAPSHOT, "w", encoding="utf-8") as f:
         json.dump(new_data, f, ensure_ascii=False, indent=1)
     print(f"✅ 快照已更新：{SNAPSHOT}（{os.path.getsize(SNAPSHOT)} 字节）")
+
+    # 时间流记忆：状态变化追加进历史（有事件才写，与快照同 commit）
+    update_history(new_data["repos"], old_repos, new_data["updated_at"])
     print(f"📊 汇总: 共 {summary['total']} | ▶️ 运行中 {summary['running']} | "
           f"✅ 正常 {summary['ok']} | ❌ 失败 {summary['failed']} | "
           f"⛔ 无 runs {summary['no_runs']}")

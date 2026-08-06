@@ -120,6 +120,52 @@ function fmtAgo(iso) {
   return new Date(iso).toLocaleDateString("zh-CN");
 }
 
+// ---------- 分组折叠（全部视图下按状态分组，挂屏优先失败/运行中） ----------
+const GROUPS = [
+  { key: "failed", icon: "✗", label: "失败" },
+  { key: "running", icon: "⏳", label: "运行中" },
+  { key: "ok", icon: "✓", label: "正常" },
+  { key: "no_runs", icon: "⏸", label: "无运行" },
+];
+// 默认：失败/运行中展开，正常/无运行折叠（挂屏只看重点，需要时点开）
+const collapsed = ref({ failed: false, running: false, ok: true, no_runs: true });
+const grouped = computed(() => {
+  if (!data.value) return [];
+  return GROUPS.map((g) => ({
+    ...g,
+    repos: (data.value.repos || [])
+      .filter((r) => stOf(r) === g.key)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }));
+});
+function toggleGroup(key) {
+  collapsed.value[key] = !collapsed.value[key];
+}
+const isGroupedView = computed(
+  () => statusFilter.value === "all" && catFilter.value === "all"
+);
+
+// ---------- 时间流记忆（actions-history.json：状态变化事件流） ----------
+const history = ref([]);
+const histOpen = ref(true);
+const HIST_META = {
+  failed: { icon: "✗", color: "#dc2626" },
+  ok: { icon: "✓", color: "#22a06b" },
+  running: { icon: "⏳", color: "#2563eb" },
+  no_runs: { icon: "⏸", color: "#94a3b8" },
+};
+async function loadHistory() {
+  try {
+    const res = await fetch("/actions-history.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const arr = await res.json();
+    // 倒序取最近 8 条
+    history.value = Array.isArray(arr) ? arr.slice(-8).reverse() : [];
+  } catch (e) {
+    // 历史文件还没生成时静默（不打扰挂屏）
+  }
+}
+
 // ---------- 5 分钟自动刷新 ----------
 let timer = null;
 async function load() {
@@ -137,7 +183,11 @@ async function load() {
 }
 onMounted(() => {
   load();
-  timer = setInterval(load, 5 * 60 * 1000); // 每 5 分钟刷新一次
+  loadHistory();
+  timer = setInterval(() => {
+    load();
+    loadHistory();
+  }, 5 * 60 * 1000); // 每 5 分钟刷新一次
 });
 onBeforeUnmount(() => clearInterval(timer));
 </script>
@@ -191,7 +241,79 @@ onBeforeUnmount(() => clearInterval(timer));
         </button>
       </div>
 
-      <div class="grid">
+      <!-- 时间流：最近状态变化（失败红 / 恢复绿 / 运行蓝） -->
+      <div v-if="history.length" class="history">
+        <div class="history-head" @click="histOpen = !histOpen">
+          <span class="history-title">📜 时间流（状态变化）</span>
+          <span class="history-arrow">{{ histOpen ? "▾" : "▸" }}</span>
+        </div>
+        <div v-if="histOpen" class="history-list">
+          <div v-for="(ev, i) in history" :key="i" class="hist-item">
+            <span class="hist-time">{{ fmtTime(ev.t) }}</span>
+            <span class="hist-repo" :title="ev.repo">{{ ev.repo }}</span>
+            <span class="hist-change">
+              <span class="hist-st" :style="{ color: (HIST_META[ev.from] || {}).color }">
+                {{ (HIST_META[ev.from] || {}).icon }} {{ ev.from }}
+              </span>
+              <span class="hist-arrow">→</span>
+              <span class="hist-st" :style="{ color: (HIST_META[ev.to] || {}).color }">
+                {{ (HIST_META[ev.to] || {}).icon }} {{ ev.to }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分组折叠视图（全部 + 全部分类时）：失败/运行中默认展开 -->
+      <template v-if="isGroupedView">
+        <div v-for="g in grouped" :key="g.key" class="group">
+          <div class="group-head" @click="toggleGroup(g.key)">
+            <span class="group-icon" :style="{ color: STATUS_META[g.key].color }">{{ g.icon }}</span>
+            <span class="group-label">{{ g.label }}</span>
+            <span class="group-count">{{ g.repos.length }}</span>
+            <span class="group-arrow">{{ collapsed[g.key] ? "▸" : "▾" }}</span>
+          </div>
+          <div v-if="!collapsed[g.key]" class="grid">
+            <a
+              v-for="repo in g.repos"
+              :key="repo.name"
+              :href="cardLink(repo)"
+              target="_blank"
+              :class="['card', stOf(repo)]"
+            >
+              <div class="ribbon" :style="{ background: STATUS_META[stOf(repo)].color }"></div>
+              <div class="card-head">
+                <span class="repo-name">{{ repo.name }}</span>
+                <span
+                  class="cat-badge"
+                  :style="{ color: catColor(repo), background: catColor(repo) + '22' }"
+                >{{ catOf(repo) }}</span>
+              </div>
+              <div class="status-block" :style="{ color: STATUS_META[stOf(repo)].color }">
+                <span class="status-icon">{{ STATUS_META[stOf(repo)].icon }}</span>
+                <span class="status-text">{{ stOf(repo) === "failed" ? failText(repo) : STATUS_META[stOf(repo)].text }}</span>
+              </div>
+              <div v-if="r0(repo)" class="run-info">
+                <div class="run-name">
+                  {{ r0(repo).name }}
+                  <span class="run-num">#{{ r0(repo).run_number }}</span>
+                </div>
+                <div class="run-title" :title="r0(repo).display_title">{{ r0(repo).display_title || "—" }}</div>
+                <div class="run-meta">
+                  {{ eventIcon(r0(repo).event) }} {{ fmtAgo(r0(repo).created_at) }}
+                </div>
+              </div>
+              <div v-else class="run-info none">暂无运行记录</div>
+              <div v-if="r1(repo)" class="last-run">
+                上次 {{ r1(repo).name }} #{{ r1(repo).run_number }} · {{ fmtAgo(r1(repo).created_at) }}
+              </div>
+            </a>
+          </div>
+        </div>
+      </template>
+
+      <!-- 筛选视图（选状态/分类时）：平铺展示 -->
+      <div v-else class="grid">
         <a
           v-for="repo in shown"
           :key="repo.name"
@@ -227,7 +349,7 @@ onBeforeUnmount(() => clearInterval(timer));
           </div>
         </a>
       </div>
-      <div v-if="!shown.length" class="no-result">没有匹配的仓库</div>
+      <div v-if="!isGroupedView && !shown.length" class="no-result">没有匹配的仓库</div>
 
       <div class="foot">
         ⏱ 快照由 Actions Monitor 每 30 分钟扫描一次，状态无变化时快照保持不动（这是正常的）
@@ -470,6 +592,131 @@ onBeforeUnmount(() => clearInterval(timer));
   text-align: center;
   color: var(--vp-c-text-3);
   font-size: 13px;
+}
+
+/* ---------- 分组折叠 ---------- */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.group {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--vp-c-bg);
+}
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--vp-c-bg-soft);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.group-head:hover {
+  background: var(--vp-c-bg-alt);
+}
+.group-icon {
+  font-size: 15px;
+}
+.group-label {
+  color: var(--vp-c-text-1);
+}
+.group-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vp-c-text-3);
+  background: var(--vp-c-bg);
+  border-radius: 999px;
+  padding: 1px 10px;
+}
+.group-arrow {
+  color: var(--vp-c-text-3);
+  font-size: 12px;
+  width: 14px;
+  text-align: center;
+}
+.group .grid {
+  padding: 10px;
+}
+
+/* ---------- 时间流（状态变化记忆） ---------- */
+.history {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: var(--vp-c-bg);
+}
+.history-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--vp-c-bg-soft);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.history-head:hover {
+  background: var(--vp-c-bg-alt);
+}
+.history-title {
+  color: var(--vp-c-text-1);
+}
+.history-arrow {
+  margin-left: auto;
+  color: var(--vp-c-text-3);
+  font-size: 12px;
+}
+.history-list {
+  padding: 6px 14px 8px;
+}
+.hist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  border-bottom: 1px dashed var(--vp-c-divider);
+}
+.hist-item:last-child {
+  border-bottom: none;
+}
+.hist-time {
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.hist-repo {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 38%;
+}
+.hist-change {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.hist-st {
+  font-weight: 600;
+  font-size: 12px;
+}
+.hist-arrow {
+  color: var(--vp-c-text-3);
 }
 .foot {
   margin-top: 16px;
