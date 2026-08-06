@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-08-06T08:09:19Z",
+ "updated_at": "2026-08-06T09:38:07Z",
  "generated_by": "actions_monitor.py",
  "summary": {
   "total": 55,
@@ -409,27 +409,27 @@
    "html_url": "https://github.com/SunsetRNE/SunsetRNE.github.io",
    "runs": [
     {
-     "id": 31083717456,
-     "run_number": 1,
+     "id": 31089915207,
+     "run_number": 2,
      "name": "Actions Monitor",
      "display_title": "Actions Monitor",
-     "event": "workflow_dispatch",
+     "event": "schedule",
      "status": "in_progress",
      "conclusion": "",
-     "created_at": "2026-08-06T08:09:02Z",
-     "html_url": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/runs/31083717456",
+     "created_at": "2026-08-06T09:37:58Z",
+     "html_url": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/runs/31089915207",
      "path": ".github/workflows/actions-monitor.yml"
     },
     {
-     "id": 31078422249,
-     "run_number": 40,
+     "id": 31088983358,
+     "run_number": 48,
      "name": "Deploy Pages",
-     "display_title": "feat(actions): monitor page - grid cards, fail-on-top, 5min auto refresh",
+     "display_title": "fix(monitor): 隐藏监控页回到顶部占位（VPLocalNav fixed 形态）",
      "event": "push",
      "status": "completed",
      "conclusion": "success",
-     "created_at": "2026-08-06T06:46:17Z",
-     "html_url": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/runs/31078422249",
+     "created_at": "2026-08-06T09:24:44Z",
+     "html_url": "https://github.com/SunsetRNE/SunsetRNE.github.io/actions/runs/31088983358",
      "path": ".github/workflows/deploy.yml"
     }
    ],
@@ -727,6 +727,18 @@
    "html_url": "https://github.com/SunsetRNE/oppo_oplus_realme",
    "runs": [
     {
+     "id": 31086639867,
+     "run_number": 31,
+     "name": "🔄 统一编译触发器（消费入队）",
+     "display_title": "🔄 统一编译触发器（消费入队）",
+     "event": "schedule",
+     "status": "completed",
+     "conclusion": "success",
+     "created_at": "2026-08-06T08:51:46Z",
+     "html_url": "https://github.com/SunsetRNE/oppo_oplus_realme/actions/runs/31086639867",
+     "path": ".github/workflows/compile_trigger.yml"
+    },
+    {
      "id": 31076509666,
      "run_number": 30,
      "name": "🔄 统一编译触发器（消费入队）",
@@ -736,18 +748,6 @@
      "conclusion": "success",
      "created_at": "2026-08-06T06:12:21Z",
      "html_url": "https://github.com/SunsetRNE/oppo_oplus_realme/actions/runs/31076509666",
-     "path": ".github/workflows/compile_trigger.yml"
-    },
-    {
-     "id": 31068797291,
-     "run_number": 29,
-     "name": "🔄 统一编译触发器（消费入队）",
-     "display_title": "🔄 统一编译触发器（消费入队）",
-     "event": "schedule",
-     "status": "completed",
-     "conclusion": "success",
-     "created_at": "2026-08-06T03:34:08Z",
-     "html_url": "https://github.com/SunsetRNE/oppo_oplus_realme/actions/runs/31068797291",
      "path": ".github/workflows/compile_trigger.yml"
     }
    ],
