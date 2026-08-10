@@ -50,10 +50,11 @@ jobs:
         env:
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
           USERNAME: SunsetRNE
-        run: python3 .github/scripts/actions_monitor.py \
-               --data-dir data-repo \
-               --loop-interval 60 \
-               --max-loops 4
+        run: |
+          python3 .github/scripts/actions_monitor.py \
+            --data-dir data-repo \
+            --loop-interval 60 \
+            --max-loops 4
 
       - name: Commit & Push Data (only on change)
         env:
