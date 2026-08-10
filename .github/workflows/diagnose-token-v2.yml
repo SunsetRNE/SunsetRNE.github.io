@@ -1,0 +1,40 @@
+# 一次性诊断 v2：SYNC_TOKEN 对主站 Pages 的写权限到底缺什么
+# 手动触发一次；第 5 段 PUT 若权限正常会直接把主站切到 gh-pages（顺带完成切换）
+name: Diagnose SYNC_TOKEN v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose token
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          echo '=== 1. token 身份 ==='
+          curl -s -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/user" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("login:", d.get("login"), "| id:", d.get("id"))'
+          echo
+          echo '=== 2. 访问主站仓库（Contents）===' 
+          curl -s -o /dev/null -w 'GET /repos/SunsetRNE/SunsetRNE.github.io -> %{http_code}\n' \
+            -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io"
+          echo '=== 3. 访问 actions-data（Contents）==='
+          curl -s -o /dev/null -w 'GET /repos/SunsetRNE/actions-data -> %{http_code}\n' \
+            -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/SunsetRNE/actions-data"
+          echo
+          echo '=== 4. 读主站 Pages ==='
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({k:d.get(k) for k in ["build_type","status","html_url","source"]}, indent=1))' 2>/dev/null || echo '解析失败'
+          echo
+          echo '=== 5. 写主站 Pages（PUT -> gh-pages，权限正常则直接完成切换）==='
+          RESP=$(curl -s -w '\nHTTP_CODE:%{http_code}' -X PUT \
+            -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/SunsetRNE/SunsetRNE.github.io/pages" \
+            -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}')
+          echo "$RESP" | tail -8
