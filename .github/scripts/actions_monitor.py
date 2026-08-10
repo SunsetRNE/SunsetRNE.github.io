@@ -42,6 +42,12 @@ SNAPSHOT = os.path.join("docs", "public", "actions-runs.json")
 HISTORY = os.path.join("docs", "public", "actions-history.json")
 HISTORY_MAX = 300  # 时间流最多保留 300 条事件
 
+# 站点本身的项目：不监控其工作流（避免自我监控噪音）
+# - SunsetRNE.github.io : 主站（监控器宿主，每 5 分钟自触发，面板永远有"运行中"）
+# - Actions             : 监控独立站（纯静态，无 workflow）
+# - actions-data        : 数据仓库（纯数据，无 workflow）
+EXCLUDE_REPOS = {"SunsetRNE.github.io", "Actions", "actions-data"}
+
 # run 状态 → 前端语义（页面只用最近一条定卡片色）
 OK_CONCLUSIONS = {"success", "skipped", "neutral"}
 
@@ -195,8 +201,10 @@ def scan_once():
     if status != 200:
         print(f"❌ 获取仓库列表失败 (HTTP {status})")
         return None
-    public = [r for r in repos if not r.get("private")]
-    print(f"   公开仓库 {len(public)} 个（私有 {len(repos) - len(public)} 个已跳过）")
+    excluded = [r for r in repos if r["name"] in EXCLUDE_REPOS]
+    public = [r for r in repos if not r.get("private") and r["name"] not in EXCLUDE_REPOS]
+    print(f"   公开仓库 {len(public)} 个（私有 {len(repos) - len(public)} 个已跳过，"
+          f"站点本身排除 {len(excluded)} 个：{', '.join(sorted(r['name'] for r in excluded))}）")
 
     # 2. 并行扫描 runs
     results = []
