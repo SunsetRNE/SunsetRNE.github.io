@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-19T02:49:37Z",
+  "updated_at": "2026-08-20T02:48:50Z",
   "total": 51,
   "synced": 46,
   "conflict": 1,
@@ -9,22 +9,12 @@
   "not_fork": 0,
   "forks": [
     {
-      "name": "android_gki_kernel_common",
-      "category": "内核源码",
-      "upstream": "cctv18/android_gki_kernel_common",
-      "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:android16-6.12-2025-06.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
-      "upstream_pushed_at": "2026-03-27T01:19:44Z",
-      "duration_s": 1
-    },
-    {
       "name": "AndroidCS-Native",
       "category": "工具/脚本",
       "upstream": "AndroidCSOfficial/android-code-studio",
       "status": "synced",
       "note": "this branch is not behind the upstream androidcsofficial:dev.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
       "upstream_pushed_at": "2026-07-09T14:35:22Z",
       "duration_s": 1
     },
@@ -34,28 +24,38 @@
       "upstream": "beemdevelopment/Aegis",
       "status": "synced",
       "note": "this branch is not behind the upstream beemdevelopment:master.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
       "upstream_pushed_at": "2026-07-16T10:50:56Z",
       "duration_s": 1
     },
     {
-      "name": "android_kernel_common_oneplus_sm8750",
+      "name": "android_kernel_common_oneplus_sm8650",
       "category": "内核源码",
-      "upstream": "cctv18/android_kernel_common_oneplus_sm8750",
+      "upstream": "cctv18/android_kernel_common_oneplus_sm8650",
       "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/sm8750_v_15.0.0_oneplus_13.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
-      "upstream_pushed_at": "2026-08-14T17:25:05Z",
+      "note": "this branch is not behind the upstream cctv18:oneplus/sm8650_u_14.0.0_oneplus12.",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
+      "upstream_pushed_at": "2026-07-24T00:25:19Z",
       "duration_s": 1
     },
     {
-      "name": "android_kernel_common_oneplus_sm8845",
+      "name": "android_gki_kernel_common",
       "category": "内核源码",
-      "upstream": "cctv18/android_kernel_common_oneplus_sm8845",
+      "upstream": "cctv18/android_gki_kernel_common",
       "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/sm8845_b_16.0.0_ace_6t.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
-      "upstream_pushed_at": "2026-05-09T02:28:28Z",
+      "note": "this branch is not behind the upstream cctv18:android16-6.12-2025-06.",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
+      "upstream_pushed_at": "2026-03-27T01:19:44Z",
+      "duration_s": 1
+    },
+    {
+      "name": "android_kernel_oneplus_mt6897",
+      "category": "内核源码",
+      "upstream": "cctv18/android_kernel_oneplus_mt6897",
+      "status": "synced",
+      "note": "this branch is not behind the upstream cctv18:oneplus/mt6897_v_15.0.0_oneplus_pad.",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
+      "upstream_pushed_at": "2025-10-28T08:23:20Z",
       "duration_s": 1
     },
     {
@@ -69,23 +69,13 @@
       "duration_s": 0
     },
     {
-      "name": "android_kernel_common_oneplus_sm8650",
+      "name": "android_kernel_common_oneplus_sm8750",
       "category": "内核源码",
-      "upstream": "cctv18/android_kernel_common_oneplus_sm8650",
+      "upstream": "cctv18/android_kernel_common_oneplus_sm8750",
       "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/sm8650_u_14.0.0_oneplus12.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
-      "upstream_pushed_at": "2026-07-24T00:25:19Z",
-      "duration_s": 1
-    },
-    {
-      "name": "android_kernel_oneplus_mt6897",
-      "category": "内核源码",
-      "upstream": "cctv18/android_kernel_oneplus_mt6897",
-      "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/mt6897_v_15.0.0_oneplus_pad.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
-      "upstream_pushed_at": "2025-10-28T08:23:20Z",
+      "note": "this branch is not behind the upstream cctv18:oneplus/sm8750_v_15.0.0_oneplus_13.",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
+      "upstream_pushed_at": "2026-08-14T17:25:05Z",
       "duration_s": 1
     },
     {
@@ -94,38 +84,18 @@
       "upstream": "cctv18/android_kernel_common_oneplus_sm8850",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:oneplus/sm8850_v_16.0.0_oneplus_15.",
-      "fork_pushed_at": "2026-08-19T02:49:31Z",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
       "upstream_pushed_at": "2026-07-24T22:28:22Z",
       "duration_s": 1
     },
     {
-      "name": "android_kernel_oneplus_mt6991",
+      "name": "android_kernel_common_oneplus_sm8845",
       "category": "内核源码",
-      "upstream": "cctv18/android_kernel_oneplus_mt6991",
+      "upstream": "cctv18/android_kernel_common_oneplus_sm8845",
       "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oneplus/mt6991_v_15.0.2_ace5_ultra.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
-      "upstream_pushed_at": "2026-04-20T08:11:45Z",
-      "duration_s": 1
-    },
-    {
-      "name": "android_kernel_oppo_mt6993",
-      "category": "内核源码",
-      "upstream": "cctv18/android_kernel_oppo_mt6993",
-      "status": "synced",
-      "note": "this branch is not behind the upstream cctv18:oppo/mt6993_b_16.0.0_find_x9.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
-      "upstream_pushed_at": "2026-02-06T04:41:56Z",
-      "duration_s": 1
-    },
-    {
-      "name": "CPA-Codex-Manager",
-      "category": "AI工具",
-      "upstream": "Maoleio/CPA-Codex-Manager",
-      "status": "synced",
-      "note": "this branch is not behind the upstream maoleio:main.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
-      "upstream_pushed_at": "2026-04-01T10:46:05Z",
+      "note": "this branch is not behind the upstream cctv18:oneplus/sm8845_b_16.0.0_ace_6t.",
+      "fork_pushed_at": "2026-08-20T02:48:44Z",
+      "upstream_pushed_at": "2026-05-09T02:28:28Z",
       "duration_s": 1
     },
     {
@@ -134,7 +104,7 @@
       "upstream": "cctv18/android_kernel_oneplus_mt6989",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:oneplus/mt6989_v_15.0.2_ace5_race.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
       "upstream_pushed_at": "2026-04-20T08:19:03Z",
       "duration_s": 1
     },
@@ -144,18 +114,8 @@
       "upstream": "cctv18/android_kernel_oneplus_mt6993",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:oneplus/mt6993_b_16.0_ace_6_ultra.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
       "upstream_pushed_at": "2026-07-24T22:23:54Z",
-      "duration_s": 1
-    },
-    {
-      "name": "box",
-      "category": "代理网络",
-      "upstream": "boxproxy/box",
-      "status": "synced",
-      "note": "this branch is not behind the upstream boxproxy:master.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
-      "upstream_pushed_at": "2026-08-16T15:59:05Z",
       "duration_s": 1
     },
     {
@@ -164,8 +124,28 @@
       "upstream": "cctv18/Baseband-guard",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:master.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
       "upstream_pushed_at": "2026-03-29T12:28:47Z",
+      "duration_s": 1
+    },
+    {
+      "name": "CPA-Codex-Manager",
+      "category": "AI工具",
+      "upstream": "Maoleio/CPA-Codex-Manager",
+      "status": "synced",
+      "note": "this branch is not behind the upstream maoleio:main.",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
+      "upstream_pushed_at": "2026-04-01T10:46:05Z",
+      "duration_s": 1
+    },
+    {
+      "name": "android_kernel_oneplus_mt6991",
+      "category": "内核源码",
+      "upstream": "cctv18/android_kernel_oneplus_mt6991",
+      "status": "synced",
+      "note": "this branch is not behind the upstream cctv18:oneplus/mt6991_v_15.0.2_ace5_ultra.",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
+      "upstream_pushed_at": "2026-04-20T08:11:45Z",
       "duration_s": 1
     },
     {
@@ -174,18 +154,28 @@
       "upstream": "Yuyuyang/cloudmail",
       "status": "synced",
       "note": "this branch is not behind the upstream yuyuyang:main.",
-      "fork_pushed_at": "2026-08-19T02:49:32Z",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
       "upstream_pushed_at": "2025-11-24T01:56:02Z",
       "duration_s": 1
     },
     {
-      "name": "device_faker",
-      "category": "模块/框架",
-      "upstream": "Seyud/device_faker",
+      "name": "android_kernel_oppo_mt6993",
+      "category": "内核源码",
+      "upstream": "cctv18/android_kernel_oppo_mt6993",
       "status": "synced",
-      "note": "this branch is not behind the upstream seyud:main.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-12T16:06:53Z",
+      "note": "this branch is not behind the upstream cctv18:oppo/mt6993_b_16.0.0_find_x9.",
+      "fork_pushed_at": "2026-08-20T02:48:45Z",
+      "upstream_pushed_at": "2026-02-06T04:41:56Z",
+      "duration_s": 1
+    },
+    {
+      "name": "box",
+      "category": "代理网络",
+      "upstream": "boxproxy/box",
+      "status": "synced",
+      "note": "this branch is not behind the upstream boxproxy:master.",
+      "fork_pushed_at": "2026-08-20T02:48:46Z",
+      "upstream_pushed_at": "2026-08-16T15:59:05Z",
       "duration_s": 1
     },
     {
@@ -194,7 +184,7 @@
       "upstream": "tomakino/CSLyric",
       "status": "synced",
       "note": "this branch is not behind the upstream tomakino:main.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
+      "fork_pushed_at": "2026-08-20T02:48:46Z",
       "upstream_pushed_at": "2026-04-06T22:33:07Z",
       "duration_s": 1
     },
@@ -204,8 +194,18 @@
       "upstream": "chen08209/FlClash",
       "status": "synced",
       "note": "this branch is not behind the upstream chen08209:main.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-17T09:34:23Z",
+      "fork_pushed_at": "2026-08-20T02:48:46Z",
+      "upstream_pushed_at": "2026-08-19T11:05:52Z",
+      "duration_s": 1
+    },
+    {
+      "name": "device_faker",
+      "category": "模块/框架",
+      "upstream": "Seyud/device_faker",
+      "status": "synced",
+      "note": "this branch is not behind the upstream seyud:main.",
+      "fork_pushed_at": "2026-08-20T02:48:46Z",
+      "upstream_pushed_at": "2026-08-12T16:06:53Z",
       "duration_s": 1
     },
     {
@@ -214,18 +214,18 @@
       "upstream": "frknkrc44/HMA-OSS",
       "status": "synced",
       "note": "this branch is not behind the upstream frknkrc44:master.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-16T05:02:33Z",
+      "fork_pushed_at": "2026-08-20T02:48:46Z",
+      "upstream_pushed_at": "2026-08-20T00:51:53Z",
       "duration_s": 1
     },
     {
-      "name": "GKI_KernelSU_SUSFS",
-      "category": "Root方案",
-      "upstream": "zzh20188/GKI_KernelSU_SUSFS",
-      "status": "synced",
-      "note": "this branch is not behind the upstream zzh20188:dev.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-16T01:15:04Z",
+      "name": "InstallerX-Revived",
+      "category": "模块/框架",
+      "upstream": "wxxsfxyzm/InstallerX-Revived",
+      "status": "conflict",
+      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
+      "fork_pushed_at": "2026-08-06T05:13:35Z",
+      "upstream_pushed_at": "2026-08-19T22:11:44Z",
       "duration_s": 1
     },
     {
@@ -234,8 +234,8 @@
       "upstream": "woaiys3/deepseek-harness-android-app",
       "status": "synced",
       "note": "successfully fetched and fast-forwarded from upstream woaiys3:main.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-18T11:53:37Z",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
+      "upstream_pushed_at": "2026-08-19T19:30:23Z",
       "duration_s": 1
     },
     {
@@ -249,23 +249,23 @@
       "duration_s": 0
     },
     {
-      "name": "InstallerX-Revived",
-      "category": "模块/框架",
-      "upstream": "wxxsfxyzm/InstallerX-Revived",
-      "status": "conflict",
-      "note": "与上游存在冲突，需在 GitHub 网页手动 Sync fork",
-      "fork_pushed_at": "2026-08-06T05:13:35Z",
-      "upstream_pushed_at": "2026-08-17T16:40:32Z",
-      "duration_s": 1
-    },
-    {
       "name": "headroom",
       "category": "AI工具",
       "upstream": "headroomlabs-ai/headroom",
       "status": "synced",
       "note": "successfully fetched and fast-forwarded from upstream headroomlabs-ai:main.",
-      "fork_pushed_at": "2026-08-19T02:49:33Z",
-      "upstream_pushed_at": "2026-08-18T22:23:04Z",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
+      "upstream_pushed_at": "2026-08-19T21:22:01Z",
+      "duration_s": 1
+    },
+    {
+      "name": "GKI_KernelSU_SUSFS",
+      "category": "Root方案",
+      "upstream": "zzh20188/GKI_KernelSU_SUSFS",
+      "status": "synced",
+      "note": "this branch is not behind the upstream zzh20188:dev.",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
+      "upstream_pushed_at": "2026-08-16T01:15:04Z",
       "duration_s": 1
     },
     {
@@ -274,7 +274,7 @@
       "upstream": "MeowDump/Integrity-Box",
       "status": "synced",
       "note": "this branch is not behind the upstream meowdump:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
       "upstream_pushed_at": "2026-08-15T10:36:36Z",
       "duration_s": 1
     },
@@ -284,7 +284,7 @@
       "upstream": "Chimioo/InxLocker",
       "status": "synced",
       "note": "this branch is not behind the upstream chimioo:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
       "upstream_pushed_at": "2026-06-11T17:56:39Z",
       "duration_s": 1
     },
@@ -299,43 +299,23 @@
       "duration_s": 0
     },
     {
+      "name": "KernelSU",
+      "category": "Root方案",
+      "upstream": "tiann/KernelSU",
+      "status": "synced",
+      "note": "this branch is not behind the upstream tiann:main.",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
+      "upstream_pushed_at": "2026-08-19T11:28:48Z",
+      "duration_s": 1
+    },
+    {
       "name": "kernel-workshop",
       "category": "内核源码",
       "upstream": "cctv18/kernel-workshop",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
+      "fork_pushed_at": "2026-08-20T02:48:47Z",
       "upstream_pushed_at": "2026-07-22T10:53:25Z",
-      "duration_s": 1
-    },
-    {
-      "name": "jcodemunch-mcp",
-      "category": "AI工具",
-      "upstream": "jgravelle/jcodemunch-mcp",
-      "status": "synced",
-      "note": "successfully fetched and fast-forwarded from upstream jgravelle:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
-      "upstream_pushed_at": "2026-08-19T02:28:41Z",
-      "duration_s": 1
-    },
-    {
-      "name": "KernelSU",
-      "category": "Root方案",
-      "upstream": "tiann/KernelSU",
-      "status": "synced",
-      "note": "successfully fetched and fast-forwarded from upstream tiann:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
-      "upstream_pushed_at": "2026-08-18T10:55:15Z",
-      "duration_s": 1
-    },
-    {
-      "name": "mihomo",
-      "category": "代理网络",
-      "upstream": "vernesong/mihomo",
-      "status": "synced",
-      "note": "this branch is not behind the upstream vernesong:alpha.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
-      "upstream_pushed_at": "2026-08-17T20:45:42Z",
       "duration_s": 1
     },
     {
@@ -344,8 +324,18 @@
       "upstream": "cctv18/KPatch-Next",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
       "upstream_pushed_at": "2026-06-12T04:19:32Z",
+      "duration_s": 1
+    },
+    {
+      "name": "jcodemunch-mcp",
+      "category": "AI工具",
+      "upstream": "jgravelle/jcodemunch-mcp",
+      "status": "synced",
+      "note": "successfully fetched and fast-forwarded from upstream jgravelle:main.",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
+      "upstream_pushed_at": "2026-08-19T11:38:07Z",
       "duration_s": 1
     },
     {
@@ -353,19 +343,29 @@
       "category": "工具/脚本",
       "upstream": "P0luz/Ombre-Brain",
       "status": "synced",
-      "note": "successfully fetched and fast-forwarded from upstream p0luz:main.",
-      "fork_pushed_at": "2026-08-19T02:49:34Z",
-      "upstream_pushed_at": "2026-08-18T10:29:14Z",
+      "note": "this branch is not behind the upstream p0luz:main.",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
+      "upstream_pushed_at": "2026-08-19T07:46:56Z",
       "duration_s": 1
     },
     {
-      "name": "Operit",
-      "category": "AI工具",
-      "upstream": "AAswordman/Operit",
+      "name": "mihomo",
+      "category": "代理网络",
+      "upstream": "vernesong/mihomo",
       "status": "synced",
-      "note": "this branch is not behind the upstream aaswordman:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
-      "upstream_pushed_at": "2026-08-18T09:06:15Z",
+      "note": "this branch is not behind the upstream vernesong:alpha.",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
+      "upstream_pushed_at": "2026-08-17T20:45:42Z",
+      "duration_s": 1
+    },
+    {
+      "name": "OnePlus-Actions",
+      "category": "CI/产物",
+      "upstream": "Xiaomichael/OnePlus-Actions",
+      "status": "synced",
+      "note": "this branch is not behind the upstream xiaomichael:build.",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
+      "upstream_pushed_at": "2026-07-31T09:02:31Z",
       "duration_s": 1
     },
     {
@@ -379,33 +379,23 @@
       "duration_s": 0
     },
     {
-      "name": "OnePlus-Actions",
-      "category": "CI/产物",
-      "upstream": "Xiaomichael/OnePlus-Actions",
-      "status": "synced",
-      "note": "this branch is not behind the upstream xiaomichael:build.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
-      "upstream_pushed_at": "2026-07-31T09:02:31Z",
-      "duration_s": 1
-    },
-    {
-      "name": "open-interpreter",
-      "category": "AI工具",
-      "upstream": "openinterpreter/openinterpreter",
-      "status": "synced",
-      "note": "this branch is not behind the upstream openinterpreter:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
-      "upstream_pushed_at": "2026-08-18T20:37:17Z",
-      "duration_s": 1
-    },
-    {
       "name": "Operit2",
       "category": "AI工具",
       "upstream": "AAswordman/Operit2",
       "status": "synced",
       "note": "this branch is not behind the upstream aaswordman:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
       "upstream_pushed_at": "2026-08-14T20:02:14Z",
+      "duration_s": 1
+    },
+    {
+      "name": "Operit",
+      "category": "AI工具",
+      "upstream": "AAswordman/Operit",
+      "status": "synced",
+      "note": "this branch is not behind the upstream aaswordman:main.",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
+      "upstream_pushed_at": "2026-08-20T01:15:10Z",
       "duration_s": 1
     },
     {
@@ -414,7 +404,7 @@
       "upstream": "cctv18/oppo_oplus_realme_sm8650",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
+      "fork_pushed_at": "2026-08-20T02:48:48Z",
       "upstream_pushed_at": "2026-07-24T20:25:11Z",
       "duration_s": 1
     },
@@ -424,18 +414,18 @@
       "upstream": "cctv18/oppo_oplus_realme_sm8750",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
       "upstream_pushed_at": "2026-07-25T22:03:07Z",
       "duration_s": 1
     },
     {
-      "name": "OPPO-Realme_kernel_4.14_MT6853",
-      "category": "内核源码",
-      "upstream": "sanba0519/OPPO-Realme_kernel_4.14_MT6853",
+      "name": "open-interpreter",
+      "category": "AI工具",
+      "upstream": "openinterpreter/openinterpreter",
       "status": "synced",
-      "note": "this branch is not behind the upstream sanba0519:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
-      "upstream_pushed_at": "2026-08-14T11:33:29Z",
+      "note": "successfully fetched and fast-forwarded from upstream openinterpreter:main.",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
+      "upstream_pushed_at": "2026-08-20T02:07:20Z",
       "duration_s": 1
     },
     {
@@ -444,8 +434,18 @@
       "upstream": "cctv18/oppo_oplus_realme_sm8850",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:35Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
       "upstream_pushed_at": "2026-07-25T21:32:11Z",
+      "duration_s": 1
+    },
+    {
+      "name": "OPPO-Realme_kernel_4.14_MT6853",
+      "category": "内核源码",
+      "upstream": "sanba0519/OPPO-Realme_kernel_4.14_MT6853",
+      "status": "synced",
+      "note": "this branch is not behind the upstream sanba0519:main.",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
+      "upstream_pushed_at": "2026-08-14T11:33:29Z",
       "duration_s": 1
     },
     {
@@ -454,7 +454,7 @@
       "upstream": "Nep-Timeline/Re-Telegram",
       "status": "synced",
       "note": "this branch is not behind the upstream nep-timeline:main.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
       "upstream_pushed_at": "2025-04-21T13:39:24Z",
       "duration_s": 1
     },
@@ -464,7 +464,7 @@
       "upstream": "cctv18/ReSukiSU_CI",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:main.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
       "upstream_pushed_at": "2026-08-19T01:27:00Z",
       "duration_s": 1
     },
@@ -474,8 +474,8 @@
       "upstream": "Rosemoe/sora-editor",
       "status": "synced",
       "note": "this branch is not behind the upstream rosemoe:main.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
-      "upstream_pushed_at": "2026-08-16T00:13:16Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
+      "upstream_pushed_at": "2026-08-19T20:04:30Z",
       "duration_s": 1
     },
     {
@@ -484,18 +484,8 @@
       "upstream": "SukiSU-Ultra/SukiSU-Ultra",
       "status": "synced",
       "note": "this branch is not behind the upstream sukisu-ultra:main.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
+      "fork_pushed_at": "2026-08-20T02:48:49Z",
       "upstream_pushed_at": "2026-08-15T14:40:14Z",
-      "duration_s": 1
-    },
-    {
-      "name": "Wild_KSU",
-      "category": "Root方案",
-      "upstream": "WildKernels/Wild_KSU",
-      "status": "synced",
-      "note": "this branch is not behind the upstream wildkernels:dev.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
-      "upstream_pushed_at": "2026-04-25T14:09:10Z",
       "duration_s": 1
     },
     {
@@ -504,8 +494,18 @@
       "upstream": "cctv18/susfs4oki",
       "status": "synced",
       "note": "this branch is not behind the upstream cctv18:oki-android14-6.1.",
-      "fork_pushed_at": "2026-08-19T02:49:36Z",
+      "fork_pushed_at": "2026-08-20T02:48:50Z",
       "upstream_pushed_at": "2026-08-14T17:34:44Z",
+      "duration_s": 1
+    },
+    {
+      "name": "Wild_KSU",
+      "category": "Root方案",
+      "upstream": "WildKernels/Wild_KSU",
+      "status": "synced",
+      "note": "this branch is not behind the upstream wildkernels:dev.",
+      "fork_pushed_at": "2026-08-20T02:48:50Z",
+      "upstream_pushed_at": "2026-04-25T14:09:10Z",
       "duration_s": 1
     },
     {
@@ -513,10 +513,10 @@
       "category": "模块/框架",
       "upstream": "KOWX712/Tricky-Addon-Update-Target-List",
       "status": "synced",
-      "note": "successfully fetched and fast-forwarded from upstream kowx712:main.",
-      "fork_pushed_at": "2026-08-19T02:49:37Z",
+      "note": "this branch is not behind the upstream kowx712:main.",
+      "fork_pushed_at": "2026-08-20T02:48:50Z",
       "upstream_pushed_at": "2026-08-18T15:48:02Z",
-      "duration_s": 2
+      "duration_s": 1
     }
   ]
 }
